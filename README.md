@@ -50,3 +50,58 @@ resource "cloudbolt_bp_instance" "mycbresource" {
     }
 }
 ```
+## Sample terraform apply
+```go
+➜  terraform-sample ls -ltr
+total 8
+-rw-r--r--  1 laltomar  staff  709 Jul 23 16:01 main.tf
+➜  terraform-sample terraform apply
+data.cloudbolt_object_ref.blueprint: Refreshing state...
+data.cloudbolt_group_ref.group: Refreshing state...
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  + cloudbolt_bp_instance.mycbresource
+      id:                                                <computed>
+      blueprint:                                         "/api/v2/blueprints/2/"
+      blueprint_item.#:                                  "1"
+      blueprint_item.479288173.name:                     "build-item-Build_VM"
+      blueprint_item.479288173.parameters.%:             "3"
+      blueprint_item.479288173.parameters.cpu-cnt:       "1"
+      blueprint_item.479288173.parameters.mem-size:      "1 GB"
+      blueprint_item.479288173.parameters.placement-tag: "simulated_vmware"
+      group:                                             "/api/v2/groups/3/"
+      server_hostname:                                   <computed>
+      server_ip:                                         <computed>
+      servers.#:                                         <computed>
+
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+cloudbolt_bp_instance.mycbresource: Creating...
+  blueprint:                                         "" => "/api/v2/blueprints/2/"
+  blueprint_item.#:                                  "0" => "1"
+  blueprint_item.479288173.name:                     "" => "build-item-Build_VM"
+  blueprint_item.479288173.parameters.%:             "0" => "3"
+  blueprint_item.479288173.parameters.cpu-cnt:       "" => "1"
+  blueprint_item.479288173.parameters.mem-size:      "" => "1 GB"
+  blueprint_item.479288173.parameters.placement-tag: "" => "simulated_vmware"
+  group:                                             "" => "/api/v2/groups/3/"
+  server_hostname:                                   "" => "<computed>"
+  server_ip:                                         "" => "<computed>"
+  servers.#:                                         "" => "<computed>"
+cloudbolt_bp_instance.mycbresource: Still creating... (10s elapsed)
+cloudbolt_bp_instance.mycbresource: Creation complete after 19s (ID: /api/v2/resources/service/7/)
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+```
