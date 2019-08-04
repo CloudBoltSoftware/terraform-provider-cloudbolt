@@ -33,6 +33,14 @@ func resourceBPInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"environment": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"osbuild": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"parameters": {
 							Type:     schema.TypeMap,
 							Required: true,
@@ -80,6 +88,16 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 		bpItem := map[string]interface{}{
 			"bp-item-name":    m["name"].(string),
 			"bp-item-paramas": m["parameters"].(map[string]interface{}),
+		}
+
+		env, ok := m["environment"]
+		if ok {
+			bpItem["environment"] = env.(string)
+		}
+
+		osb, ok := m["osbuild"]
+		if ok {
+			bpItem["os-build"] = osb.(string)
 		}
 
 		bpItems = append(bpItems, bpItem)
