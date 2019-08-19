@@ -33,6 +33,14 @@ func resourceBPInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"environment": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"osbuild": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"parameters": {
 							Type:     schema.TypeMap,
 							Required: true,
@@ -64,6 +72,10 @@ func resourceBPInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"instance_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -80,6 +92,16 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 		bpItem := map[string]interface{}{
 			"bp-item-name":    m["name"].(string),
 			"bp-item-paramas": m["parameters"].(map[string]interface{}),
+		}
+
+		env, ok := m["environment"]
+		if ok {
+			bpItem["environment"] = env.(string)
+		}
+
+		osb, ok := m["osbuild"]
+		if ok {
+			bpItem["os-build"] = osb.(string)
 		}
 
 		bpItems = append(bpItems, bpItem)
@@ -110,6 +132,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var resourceId string
+	var serverId string
 	for _, j := range order.Links.Jobs {
 		job, joberr := apiClient.GetJob(j.Href)
 		if joberr != nil {
@@ -117,46 +140,67 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if job.Type == "Deploy Blueprint" {
-			resourceId = job.Links.Resource.Href
+			if len(job.Links.Resource.Href) > 0 {
+				resourceId = job.Links.Resource.Href
+				d.Set("instance_type", "Resource")
+			} else if len(job.Links.Servers) > 0 {
+				serverId = job.Links.Servers[0].Href
+				d.Set("instance_type", "Server")
+			}
 			break
 		}
 	}
 
-	if resourceId == "" {
-		return fmt.Errorf("Error Order (%s) does not have a Resource", order.ID)
+	if resourceId == "" && serverId == "" {
+		return fmt.Errorf("Error Order (%s) does not have a Resource Server", order.ID)
 	}
 
-	d.SetId(resourceId)
+	if resourceId != "" {
+		d.SetId(resourceId)
+	} else {
+		d.SetId(serverId)
+	}
 
 	return resourceBPInstanceRead(d, m)
 }
 
 func resourceBPInstanceRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
+	instanceType := d.Get("instance_type").(string)
 
-	res, err := apiClient.GetResource(d.Id())
-	if err != nil {
-		return err
-	}
-
-	servers := make([]map[string]interface{}, 0)
-	for _, s := range res.Links.Servers {
-		svr, svrerr := apiClient.GetServer(s.Href)
-		if svrerr != nil {
-			return fmt.Errorf("Error getting Servers for Resource: %s", svrerr)
+	if instanceType == "Resource" {
+		res, err := apiClient.GetResource(d.Id())
+		if err != nil {
+			return err
 		}
 
-		servers = append(servers, map[string]interface{}{
-			"hostname": svr.Hostname,
-			"ip":       svr.IP,
-		})
+		servers := make([]map[string]interface{}, 0)
+		for _, s := range res.Links.Servers {
+			svr, svrerr := apiClient.GetServer(s.Href)
+			if svrerr != nil {
+				return fmt.Errorf("Error getting Servers for Resource: %s", svrerr)
+			}
+
+			servers = append(servers, map[string]interface{}{
+				"hostname": svr.Hostname,
+				"ip":       svr.IP,
+			})
+
+			d.Set("server_hostname", svr.Hostname)
+			d.Set("server_ip", svr.IP)
+		}
+
+		if servers != nil {
+			d.Set("servers", servers)
+		}
+	} else {
+		svr, svrerr := apiClient.GetServer(d.Id())
+		if svrerr != nil {
+			return fmt.Errorf("Error getting Server: %s", svrerr)
+		}
 
 		d.Set("server_hostname", svr.Hostname)
 		d.Set("server_ip", svr.IP)
-	}
-
-	if servers != nil {
-		d.Set("servers", servers)
 	}
 
 	return nil
@@ -168,40 +212,70 @@ func resourceBPInstanceUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
+	instanceType := d.Get("instance_type").(string)
 
-	res, err := apiClient.GetResource(d.Id())
-	if err != nil {
-		return err
-	}
-
-	var delResPath string
-	for _, v := range res.Links.Actions {
-		if v.Delete.Href != "" {
-			delResPath = v.Delete.Href
-			break
+	if instanceType == "Resource" {
+		res, err := apiClient.GetResource(d.Id())
+		if err != nil {
+			return err
 		}
-	}
 
-	if delResPath == "" {
-		return fmt.Errorf("Error deleting resource (%s).", d.Id())
-	}
+		var delResPath string
+		for _, v := range res.Links.Actions {
+			if v.Delete.Href != "" {
+				delResPath = v.Delete.Href
+				break
+			}
+		}
 
-	job, delerr := apiClient.SubmitAction(delResPath)
-	if delerr != nil {
-		return delerr
-	}
+		if delResPath == "" {
+			return fmt.Errorf("Error deleting resource (%s).", d.Id())
+		}
 
-	stateChangeConf := resource.StateChangeConf{
-		Delay:   10 * time.Second,
-		Timeout: 5 * time.Minute,
-		Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
-		Target:  []string{"SUCCESS"},
-		Refresh: JobStateRefreshFunc(m.(Config), job.RunActionJob.Self.Href),
-	}
+		job, delerr := apiClient.SubmitAction(delResPath)
+		if delerr != nil {
+			return delerr
+		}
 
-	_, err = stateChangeConf.WaitForState()
-	if err != nil {
-		return fmt.Errorf("Error waiting for Job (%s) to complete: %s", job.RunActionJob.Self.Href, err)
+		stateChangeConf := resource.StateChangeConf{
+			Delay:   10 * time.Second,
+			Timeout: 5 * time.Minute,
+			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
+			Target:  []string{"SUCCESS"},
+			Refresh: JobStateRefreshFunc(m.(Config), job.RunActionJob.Self.Href),
+		}
+
+		_, err = stateChangeConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf("Error waiting for Job (%s) to complete: %s", job.RunActionJob.Self.Href, err)
+		}
+	} else {
+		svr, err := apiClient.GetServer(d.Id())
+		if err != nil {
+			return err
+		}
+
+		servers := []string{
+			svr.Links.Self.Href,
+		}
+
+		order, err := apiClient.DecomOrder(svr.Links.Group.Href, svr.Links.Environment.Href, servers)
+		if err != nil {
+			return err
+		}
+
+		stateChangeConf := resource.StateChangeConf{
+			Delay:   10 * time.Second,
+			Timeout: 5 * time.Minute,
+			Pending: []string{"ACTIVE"},
+			Target:  []string{"SUCCESS"},
+			Refresh: OrderStateRefreshFunc(m.(Config), order.ID),
+		}
+
+		_, err = stateChangeConf.WaitForState()
+		if err != nil {
+			return fmt.Errorf("Error waiting for Decomm Order (%s) to complete: %s", order.ID, err)
+		}
 	}
 
 	return nil
