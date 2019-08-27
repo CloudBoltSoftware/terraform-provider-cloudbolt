@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/cloudboltsoftware/terraform-provider-cloudbolt/cloudbolt"
 	"github.com/hashicorp/terraform/plugin"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/laltomar/terraform-provider-cloudbolt/cloudbolt"
 )
 
 func main() {
