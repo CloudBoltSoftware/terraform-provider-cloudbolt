@@ -7,10 +7,10 @@ Sample Terraform Resource Provider to initiate CloudBolt Blueprint Orders.
 
 ## Installation
 ```go
-go get github.com/laltomar/cloudbolt-go-sdk
-go get github.com/laltomar/terraform-provider-cloudbolt
+go get github.com/cloudboltsoftware/cloudbolt-go-sdk
+go get github.com/cloudboltsfotware/terraform-provider-cloudbolt
 
-cd ${GOPATH}/src/github.com/laltomar/terraform-provider-cloudbolt 
+cd ${GOPATH}/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt 
 
 mkdir ~/.terraform.d/plugins
 
@@ -54,7 +54,7 @@ resource "cloudbolt_bp_instance" "mycbresource" {
 ```go
 ➜  terraform-sample ls -ltr
 total 8
--rw-r--r--  1 laltomar  staff  709 Jul 23 16:01 main.tf
+-rw-r--r--  1 myuser staff  709 Jul 23 16:01 main.tf
 ➜  terraform-sample terraform apply
 data.cloudbolt_object_ref.blueprint: Refreshing state...
 data.cloudbolt_group_ref.group: Refreshing state...
