@@ -1,8 +1,8 @@
 package cloudbolt
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type Config struct {

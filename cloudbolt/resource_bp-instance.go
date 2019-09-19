@@ -122,13 +122,13 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 
 	_, err = stateChangeConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for Order (%s) to complete: %s", order.ID, err)
+		return fmt.Errorf("Error waiting for Order (%s) to complete. Error: %s", order.ID, err)
 	}
 
 	// Retrieve the updated order to obtain Resource ID
-	order, orderr := apiClient.GetOrder(order.ID)
-	if orderr != nil {
-		return orderr
+	order, err = apiClient.GetOrder(order.ID)
+	if err != nil {
+		return err
 	}
 
 	var resourceId string
@@ -152,7 +152,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if resourceId == "" && serverId == "" {
-		return fmt.Errorf("Error Order (%s) does not have a Resource Server", order.ID)
+		return fmt.Errorf("Error Order (%s) does not have a Resource or Server", order.ID)
 	}
 
 	if resourceId != "" {
@@ -286,8 +286,9 @@ func OrderStateRefreshFunc(config Config, orderId string) resource.StateRefreshF
 
 	return func() (interface{}, string, error) {
 		order, err := apiClient.GetOrder(orderId)
+
 		if err != nil {
-			return nil, "", err
+			return nil, "ERROR", err
 		}
 
 		if order.Status == "FAILURE" {
