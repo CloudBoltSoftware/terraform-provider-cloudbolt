@@ -2,6 +2,7 @@ package cloudbolt
 
 import (
 	"fmt"
+	// "log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -14,7 +15,7 @@ func dataSourceCloudBoltObject() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The name or absolulte path to the CloudBolt Object.",
+				Description: "The name or absolute path to the CloudBolt Object.",
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -32,6 +33,8 @@ func dataSourceCloudBoltObject() *schema.Resource {
 
 func dataSourceCloudBoltObjectRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
+
+	// log.Printf("[!!] apiClient in dataSourceCloudBoltObjectRead: %+v", apiClient)
 
 	obj, err := apiClient.GetCloudBoltObject(d.Get("type").(string), d.Get("name").(string))
 

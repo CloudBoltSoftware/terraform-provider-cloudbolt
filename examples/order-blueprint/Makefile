@@ -5,8 +5,11 @@ run: init plan apply
 init:
 	terraform init
 
-plan:
+plan: init
 	terraform plan
 
-apply:
+destroy: init
+	terraform destroy -auto-approve
+
+apply: init
 	terraform apply -auto-approve
