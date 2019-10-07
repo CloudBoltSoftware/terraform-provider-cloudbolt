@@ -59,6 +59,8 @@ github.com/bgentry/speakeasy
 github.com/blang/semver
 # github.com/bmatcuk/doublestar v1.1.5
 github.com/bmatcuk/doublestar
+# github.com/cloudboltsoftware/cloudbolt-go-sdk v0.0.0-20191007165942-037df12e87ba
+github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/fatih/color v1.7.0
