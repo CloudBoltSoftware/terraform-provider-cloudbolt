@@ -23,6 +23,15 @@ This requires a few resources to exist on your CloudBolt instance:
 The Username, Password, Group, and Environment can be changed by passing different values for their corresponding Terraform Variables.
 For more information, see the Terraform Variables documentation: https://www.terraform.io/docs/configuration-0-11/variables.html#environment-variables
 
+## Terraform Variables
+
+The file `terraform.tfvars.dist` contains the necessary varaible inputs with values listed above.
+Feel free to change these, or pass your own variables to `terraform` with `-var 'var=value'` to override them.
+
+e.g., if you want to run this example on your CloudBolt instance, you might change `CB_PROTOCOL` to `https`, `CB_HOST` to `my.cb.internal` and `CB_PORT` to `443`.
+
+The only part of this example which is not configurable is the name of the Blueprint and Action.
+
 ## TeraformAction01
 
 An example of the Action which generates the above 6 parameters is as follows:
