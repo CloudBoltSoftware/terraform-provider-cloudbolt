@@ -7,12 +7,10 @@ provider "cloudbolt" {
 }
 
 data "cloudbolt_group_ref" "group" {
-    // Get the user-defined group
     name = "${var.CB_GROUP}"
 }
 
 data "cloudbolt_object_ref" "blueprint" {
-    // Get the 'TerraformCatalogItem01' blueprint object
     name = "TerraformCatalogItem01"
     type = "blueprints"
 }
