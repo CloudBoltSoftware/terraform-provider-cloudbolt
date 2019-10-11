@@ -286,7 +286,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 
 		_, err = stateChangeConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf("Error waiting for Decomm Order (%s) to complete: %s", order.ID, err)
+			return fmt.Errorf("Error waiting for Decom Order (%s) to complete: %s", order.ID, err)
 		}
 	}
 
