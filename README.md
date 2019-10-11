@@ -1,6 +1,9 @@
 # terraform-provider-cloudbolt
 Sample Terraform Resource Provider to initiate CloudBolt Blueprint Orders.
 
+## Supported versions of CloudBolt
+The Terraform Provider supports version CloudBolt >= 9.1
+
 ## Prerequisites
 - Install and Configure golang
 - Install and Configure terraform
