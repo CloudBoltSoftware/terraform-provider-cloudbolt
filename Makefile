@@ -6,18 +6,25 @@ TF_EXAMPLES=$(shell find examples -not -path '*/\.*' -regex 'examples/.*' -type 
 PLUGIN_EXECUTABLE=terraform-provider-cloudbolt
 TF_PLUGINS_DIR=$(HOME)/.terraform.d/plugins/
 
-build:
-	go build -o $(PLUGIN_EXECUTABLE)
+.PHONY : install
+install: build
 	mkdir -p $(TF_PLUGINS_DIR)
 	mv -f $(PLUGIN_EXECUTABLE) $(TF_PLUGINS_DIR)
 
+.PHONY : build
+build:
+	go build -o $(PLUGIN_EXECUTABLE)
+
+.PHONY : test
 test: $(TF_EXAMPLES)
 
-# TODO: Running examples
-
+.PHONY : $(TF_EXAMPLES)
 $(TF_EXAMPLES): build
 	$(MAKE) -C $@
 
+.PHONY : clean
 clean:
 	go clean
 	rm $(TF_PLUGINS_DIR)/$(PLUGINS_EXECUTABLE)
+
+
