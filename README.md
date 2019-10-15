@@ -5,24 +5,24 @@ Sample Terraform Resource Provider to initiate CloudBolt Blueprint Orders.
 The Terraform Provider supports version CloudBolt >= 9.1
 
 ## Prerequisites
-- Install and Configure golang
-- Install and Configure terraform
+- Install and Configure `golang >= 1.12`
+- Install and Configure `terraform <= 0.11`
 
 ## Installation
-```go
-go get github.com/cloudboltsoftware/cloudbolt-go-sdk
-go get github.com/cloudboltsfotware/terraform-provider-cloudbolt
+
+```sh
+go get github.com/cloudboltsoftware/terraform-provider-cloudbolt
 
 cd ${GOPATH}/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt 
 
-mkdir ~/.terraform.d/plugins
-
-go build -o terraform-provider-cloudbolt
-mv terraform-provider-cloudbolt ~/.terraform.d/plugins/.
-
+make build
 ```
+
+This will build the Terraform Provider and copy it to your `~/.terraform.d/plugins` directory.
+
 ## Sample Terraform Configuration
-```go
+
+```hcl
 provider "cloudbolt" {
     cb_protocol = "https"
     cb_host = "localhost"
@@ -53,8 +53,10 @@ resource "cloudbolt_bp_instance" "mycbresource" {
     }
 }
 ```
+
 ## Sample terraform apply
-```go
+
+```sh
 ➜  terraform-sample ls -ltr
 total 8
 -rw-r--r--  1 myuser staff  709 Jul 23 16:01 main.tf
@@ -108,8 +110,10 @@ cloudbolt_bp_instance.mycbresource: Creation complete after 19s (ID: /api/v2/res
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ```
+
 ## Sample terraform show
-```go
+
+```sh
 ➜  terraform-sample terraform show
 cloudbolt_bp_instance.mycbresource:
   id = /api/v2/resources/service/7/
@@ -135,9 +139,11 @@ data.cloudbolt_object_ref.blueprint:
   name = CentOS_7
   type = blueprints
   url_path = /api/v2/blueprints/2/
-  ```
-  ## Sample terraform destroy
-  ```go
+```
+
+## Sample terraform destroy
+
+```sh
   ➜  terraform-sample terraform destroy
 data.cloudbolt_object_ref.blueprint: Refreshing state...
 data.cloudbolt_group_ref.group: Refreshing state...
