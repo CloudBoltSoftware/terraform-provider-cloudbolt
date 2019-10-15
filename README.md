@@ -15,7 +15,7 @@ go get github.com/cloudboltsoftware/terraform-provider-cloudbolt
 
 cd ${GOPATH}/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt 
 
-make build
+make install
 ```
 
 This will build the Terraform Provider and copy it to your `~/.terraform.d/plugins` directory.
