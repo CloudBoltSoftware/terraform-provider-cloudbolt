@@ -2,7 +2,7 @@ package cloudbolt
 
 import (
 	"fmt"
-	// "log"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -34,16 +34,17 @@ func dataSourceCloudBoltObject() *schema.Resource {
 func dataSourceCloudBoltObjectRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
 
-	// log.Printf("[!!] apiClient in dataSourceCloudBoltObjectRead: %+v", apiClient)
+	log.Printf("[!!] apiClient in dataSourceCloudBoltObjectRead: %+v", apiClient)
 
 	obj, err := apiClient.GetCloudBoltObject(d.Get("type").(string), d.Get("name").(string))
-
 	if err != nil {
 		return fmt.Errorf("Error loading CloudBolt Object: %s", err)
 	}
 
 	d.SetId(obj.ID)
 	d.Set("url_path", obj.Links.Self.Href)
+
+	log.Printf("[!!] url_path: %+v", obj.Links.Self.Href)
 
 	return nil
 }

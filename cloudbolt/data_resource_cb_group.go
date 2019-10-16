@@ -2,7 +2,7 @@ package cloudbolt
 
 import (
 	"fmt"
-	// "log"
+	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -27,14 +27,14 @@ func dataSourceCloudBoltGroup() *schema.Resource {
 }
 
 func dataSourceCloudBoltGroupRead(d *schema.ResourceData, m interface{}) error {
-	// log.Printf("in dataSoruceCloudBoltGroupRead")
+	log.Printf("in dataSoruceCloudBoltGroupRead")
 	apiClient := m.(Config).APIClient
 
-	// log.Printf("[!!] apiClient: %+v", apiClient)
+	log.Printf("[!!] apiClient: %+v", apiClient)
 
 	group, err := apiClient.GetGroup(d.Get("name").(string))
 
-	// log.Printf("[!!] group : %+v", group)
+	log.Printf("[!!] group : %+v", group)
 
 	if err != nil {
 		return fmt.Errorf("Error loading CloudBolt Group: %s", err)
