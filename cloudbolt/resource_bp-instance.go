@@ -2,7 +2,7 @@ package cloudbolt
 
 import (
 	"fmt"
-	// "log"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -88,7 +88,7 @@ func resourceBPInstance() *schema.Resource {
 func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
 
-	// log.Printf("[!!] apiClient in resourceBPInstanceCreate: %+v", apiClient)
+	log.Printf("[!!] apiClient in resourceBPInstanceCreate: %+v", apiClient)
 
 	bpItems := make([]map[string]interface{}, 0)
 	bpItemList := d.Get("blueprint_item").(*schema.Set).List()
@@ -147,7 +147,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if job.Type == "Deploy Blueprint" {
-			// log.Println("[!!] Deploying Blueprint")
+			log.Println("[!!] Deploying Blueprint")
 			if len(job.Links.Resource.Href) > 0 {
 				resourceId = job.Links.Resource.Href
 				d.Set("instance_type", "Resource")
@@ -176,7 +176,7 @@ func resourceBPInstanceRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
 	instanceType := d.Get("instance_type").(string)
 
-	// log.Printf("[!!] apiClient in resourceBPInstanceRead: %+v", apiClient)
+	log.Printf("[!!] apiClient in resourceBPInstanceRead: %+v", apiClient)
 
 	if instanceType == "Resource" {
 		res, err := apiClient.GetResource(d.Id())
@@ -224,7 +224,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(Config).APIClient
 	instanceType := d.Get("instance_type").(string)
 
-	// log.Printf("[!!] apiClient in resourceBPInstanceDelete: %+v", apiClient)
+	log.Printf("[!!] apiClient in resourceBPInstanceDelete: %+v", apiClient)
 
 	if instanceType == "Resource" {
 		res, err := apiClient.GetResource(d.Id())
@@ -296,7 +296,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 func OrderStateRefreshFunc(config Config, orderId string) resource.StateRefreshFunc {
 	apiClient := config.APIClient
 
-	// log.Printf("[!!] apiClient in OrderStateRefreshFunc: %+v", apiClient)
+	log.Printf("[!!] apiClient in OrderStateRefreshFunc: %+v", apiClient)
 
 	return func() (interface{}, string, error) {
 		order, err := apiClient.GetOrder(orderId)
@@ -316,7 +316,7 @@ func OrderStateRefreshFunc(config Config, orderId string) resource.StateRefreshF
 func JobStateRefreshFunc(config Config, jobPath string) resource.StateRefreshFunc {
 	apiClient := config.APIClient
 
-	// log.Printf("[!!] apiClient in JobStateRefreshFunc: %+v", apiClient)
+	log.Printf("[!!] apiClient in JobStateRefreshFunc: %+v", apiClient)
 
 	return func() (interface{}, string, error) {
 		job, err := apiClient.GetJob(jobPath)
