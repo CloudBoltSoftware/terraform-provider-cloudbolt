@@ -25,7 +25,7 @@ resource "cloudbolt_bp_instance" "cb_order" {
     blueprint = "${data.cloudbolt_object_ref.blueprint.url_path}"
 
     blueprint_item = {
-        name = "TerraformCatalogItem01"
+        name = "TerraformAction01"
         environment = "${data.cloudbolt_object_ref.environment.url_path}"
         parameters = {
             param1 = "TerraformInput"
