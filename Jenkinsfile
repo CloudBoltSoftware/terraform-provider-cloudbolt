@@ -15,9 +15,9 @@ pipeline {
             steps {
                 withEnv(['GOPATH=/var/jenkins_home/go', 'GOCACHE=/var/jenkins_home/go/.cache']) {
                     git credentialsId: '843338a5-615e-47be-a267-6e7c9b266843', url: 'https://github.com/CloudBoltSoftware/terraform-provider-cloudbolt.git'
-                    sh 'cp -r "/var/jenkins_home/workspace/Terraform Provider for Cloudbolt" $GOPATH/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt'
+                    sh 'cp -r . $GOPATH/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt'
                     git credentialsId: '843338a5-615e-47be-a267-6e7c9b266843', url: 'https://github.com/CloudBoltSoftware/cloudbolt-go-sdk.git'
-                    sh 'cp -r "/var/jenkins_home/workspace/Terraform Provider for Cloudbolt" $GOPATH/src/github.com/cloudboltsoftware/cloudbolt-go-sdk'
+                    sh 'cp -r . $GOPATH/src/github.com/cloudboltsoftware/cloudbolt-go-sdk'
                     sh 'echo "replace github.com/cloudboltsoftware/cloudbolt-go-sdk => ../cloudbolt-go-sdk" >> "$GOPATH/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt/go.mod"'
                     dir("$GOPATH/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt") {
                         sh 'go build -o terraform-provider-cloudbolt'
