@@ -59,8 +59,8 @@ github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWR
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
-github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v0.2.0 h1:EGVVAjA58hWpjTzmI1iW63WWFJfc9yPffr4OgsA9aS4=
-github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v0.2.0/go.mod h1:GEPfrm0CLWfbG+Xx1DJLQ90G4Jm+MTethMjUdpUPXwg=
+github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v0.3.0 h1:eCkqfkJJWivu17YakXYNccj2cnIc6pQG3ltDCWQv3F0=
+github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v0.3.0/go.mod h1:GEPfrm0CLWfbG+Xx1DJLQ90G4Jm+MTethMjUdpUPXwg=
 github.com/coreos/bbolt v1.3.0/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.2.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
