@@ -4,6 +4,8 @@ provider "cloudbolt" {
     cb_port = "${var.CB_PORT}"
     cb_username = "${var.CB_USERNAME}"
     cb_password = "${var.CB_PASSWORD}"
+    cb_insecure = true
+    cb_timeout = 500
 }
 
 data "cloudbolt_group_ref" "group" {

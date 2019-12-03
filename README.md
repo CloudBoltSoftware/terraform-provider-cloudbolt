@@ -24,11 +24,14 @@ This will build the Terraform Provider and copy it to your `~/.terraform.d/plugi
 
 ```hcl
 provider "cloudbolt" {
-    cb_protocol = "https"
-    cb_host = "localhost"
-    cb_port = "8443"
-    cb_username = "cbadmin"
-    cb_password = "cbadmin"
+    cb_protocol = "https"   // (Optional | Default: https) API protocol
+    cb_host = "localhost"   // CloudBolt host
+    cb_port = "8443"        // CloudBolt port
+    cb_username = "cbadmin" // API user
+    cb_password = "cbadmin" // API password
+    cb_api_version = "v2"   // (Optional | Default: v2) Which version of the API to use.
+    cb_insecure = false     // (Optional | Default: false) Disable SSL verification
+    cb_timeout = 10         // (Optional | Default: 10) HTTP timeout
 }
 
 data "cloudbolt_group_ref" "group" {
