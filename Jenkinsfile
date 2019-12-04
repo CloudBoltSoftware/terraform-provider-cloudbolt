@@ -49,7 +49,9 @@ pipeline {
                     git credentialsId: "${params.GIT_CREDS_GUID}", url: "${params.GIT_REPO_URL}", branch: "${params.GIT_BRANCH}", poll: false
 
                     // Override the version of the Go SDK in `go.mod` to be the local checkout
-                    sh "echo \"replace github.com/cloudboltsoftware/cloudbolt-go-sdk => ../cloudbolt-go-sdk\" >> ./go.mod"
+                    sh "go mod edit -replace github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient=../cloudbolt-go-sdk/cbclient"
+                    sh "go mod tidy"
+                    sh "go mod verify"
                     // Build the Terraform Provider
                     sh "go build -o ${env.TERRAFORM_PROVIDER_BIN_NAME}"
                 }
