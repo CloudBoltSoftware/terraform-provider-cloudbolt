@@ -22,6 +22,21 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "CloudBolt API Port",
 			},
+			"cb_api_version": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "CloudBolt API Version; e.g., v2",
+			},
+			"cb_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Timeout in seconds",
+			},
+			"cb_insecure": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Disable SSL Verification",
+			},
 			"cb_username": {
 				Type:        schema.TypeString,
 				Required:    true,
