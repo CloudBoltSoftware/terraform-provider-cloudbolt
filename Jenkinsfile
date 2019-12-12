@@ -6,7 +6,7 @@ pipeline {
         // The UUID of the credentials used to fetch the git repos
         string(name: 'GIT_CREDS_GUID', defaultValue: '')
         // Allow users to select the version of Terraform to test against
-        string(name: 'TERRAFORM_VERSION', defaultValue: '0.11.14')
+        string(name: 'TERRAFORM_VERSION', defaultValue: '0.12.18')
         // The Git repository for the Terraform Provider
         string(name: 'GIT_REPO_URL', defaultValue: 'https://github.com/CloudBoltSoftware/terraform-provider-cloudbolt.git')
         // The Git repository for the Go SDK
