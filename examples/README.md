@@ -11,7 +11,7 @@ Run `make destroy` to teardown.
 
 ## Infrastructure
 
-To run an example you will want to copy `terraform.tfvars.dist` to `terraform.tfars` in each example and fill each in with the appropriate variables.
+To run an example you will want to copy `terraform.tfvars.dist` to `terraform.tfvars` in each example and fill each in with the appropriate variables.
 
 Each example outlines additional infrastructure that is expected on the CloudBolt server for it to run correctly.
 
