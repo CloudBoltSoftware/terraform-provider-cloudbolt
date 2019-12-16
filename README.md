@@ -26,16 +26,20 @@ This will build the Terraform Provider and copy it to your `~/.terraform.d/plugi
 
 ## Sample Terraform Configuration
 
+To get started with the Terraform Provider for CloudBolt, put the following into a file called `main.tf`.
+
+Fill in the `provider "cloudbolt"` section with details about your CloudBolt instance.
+
 ```hcl
 provider "cloudbolt" {
   cb_protocol =    "https"      // (Optional | Default: https) API protocol
   cb_host =        "localhost"  // CloudBolt host
   cb_port =        "8443"       // CloudBolt port
   cb_username =    "cbadmin"    // API user
-  cb_password =    "cbadmin"    // API password 
+  cb_password =    "cbadmin"    // API password
   cb_api_version = "v2"         // (Optional | Default: v2) Which version of the API to use.
   cb_insecure =    false        // (Optional | Default: false) Disable SSL verification
-  cb_timeout =     10           // (Optional | Default: 10) HTTP timeout
+  cb_timeout =     10           // (Optional | Default: 10) HTTP timeout in seconds
 }
 
 data "cloudbolt_group_ref" "group" {
@@ -105,7 +109,8 @@ Terraform will perform the following actions:
 ```
 
 # Sample terraform apply
-```hcl
+
+```sh
 [cb-terraform-example] $  terraform apply
 data.cloudbolt_object_ref.blueprint: Refreshing state...
 data.cloudbolt_group_ref.group: Refreshing state...
