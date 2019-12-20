@@ -54,7 +54,7 @@ data "cloudbolt_object_ref" "blueprint" {
 resource "cloudbolt_bp_instance" "mycbresource" {
     group = data.cloudbolt_group_ref.group.url_path
     blueprint = data.cloudbolt_object_ref.blueprint.url_path
-    blueprint_item = {
+    blueprint_item {
         name = "build-item-Build_VM"
         parameters = {
             cpu-cnt = "1"
