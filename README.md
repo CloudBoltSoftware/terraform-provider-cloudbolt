@@ -245,4 +245,4 @@ Destroy complete! Resources: 1 destroyed.
 
 If you get stuck or confused using the Terraform Provider, check out the TROUBLESHOOTING document in this repo.
 
-If that doesn't answer you questions, please make a GitHub issue!
+If you can't find an answer and believe you have found a limitation or bug, please make a GitHub issue!

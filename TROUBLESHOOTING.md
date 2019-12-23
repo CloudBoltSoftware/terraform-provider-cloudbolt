@@ -20,7 +20,7 @@ To resolve this...
 
 1. Go to `https://your.cloudbolt.instance/actions/resource_actions/`
 2. Edit the "Delete" action.
-3. De-select "Requires Aproval".
+3. De-select "Requires Approval".
 
 You may also want to login to CloudBolt as the user Terraform is running as and clear your Cart.
 
