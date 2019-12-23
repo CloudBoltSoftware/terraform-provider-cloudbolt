@@ -240,3 +240,9 @@ cloudbolt_bp_instance.mycbresource: Destruction complete after 12s
 
 Destroy complete! Resources: 1 destroyed.
 ```
+
+## Troubleshooting
+
+If you get stuck or confused using the Terraform Provider, check out the TROUBLESHOOTING document in this repo.
+
+If that doesn't answer you questions, please make a GitHub issue!
