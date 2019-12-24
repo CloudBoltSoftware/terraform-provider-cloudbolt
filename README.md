@@ -54,7 +54,7 @@ data "cloudbolt_object_ref" "blueprint" {
 resource "cloudbolt_bp_instance" "mycbresource" {
     group = data.cloudbolt_group_ref.group.url_path
     blueprint = data.cloudbolt_object_ref.blueprint.url_path
-    blueprint_item = {
+    blueprint_item {
         name = "build-item-Build_VM"
         parameters = {
             cpu-cnt = "1"
@@ -240,3 +240,9 @@ cloudbolt_bp_instance.mycbresource: Destruction complete after 12s
 
 Destroy complete! Resources: 1 destroyed.
 ```
+
+## Troubleshooting
+
+If you get stuck or confused using the Terraform Provider, check out the TROUBLESHOOTING document in this repo.
+
+If you can't find an answer and believe you have found a limitation or bug, please make a GitHub issue!
