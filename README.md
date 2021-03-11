@@ -7,7 +7,7 @@ Your mileage may vary.
 
 ## Prerequisites
 - Install and Configure `golang >= 1.12`
-- Install and Configure `terraform >= 0.12` (_may_ work with `terraform <= 0.11.x`)
+- Install and Configure `terraform >= 0.14` (_may_ work with `terraform <= 0.11.x`)
 
 ## Installation
 
