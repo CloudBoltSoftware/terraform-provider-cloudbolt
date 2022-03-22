@@ -12,14 +12,8 @@ Your mileage may vary.
 ## Installation
 
 ```sh
-# Fetch the Terraform Provider
-go get github.com/cloudboltsoftware/terraform-provider-cloudbolt
-
-# Navigate to the Provider
-cd ${GOPATH}/src/github.com/cloudboltsoftware/terraform-provider-cloudbolt
-
-# Compile the binary and place it in ~/.terraform.d/plugins/
-make install
+# Download, build and install the Terraform Provider for CloudBolt
+go install github.com/cloudboltsoftware/terraform-provider-cloudbolt
 ```
 
 This will build the Terraform Provider and copy it to your `~/.terraform.d/plugins` directory.
