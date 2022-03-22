@@ -12,6 +12,9 @@ Your mileage may vary.
 ## Installation
 
 ```sh
+# Set your go path to a location of your choosing
+export GOPATH=~/go
+
 # Download, build and install the Terraform Provider for CloudBolt
 go install github.com/cloudboltsoftware/terraform-provider-cloudbolt@latest
 ```
