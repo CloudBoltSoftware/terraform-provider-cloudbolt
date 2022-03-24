@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 type Config struct {
@@ -31,8 +31,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	httpClient := &http.Client{
 		// (Optional) User requested insecure transport
-		Transport: &http.Transport {
-			TLSClientConfig: &tls.Config {
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: d.Get("cb_insecure").(bool), // Default: false
 			},
 		},
