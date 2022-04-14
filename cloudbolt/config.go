@@ -14,11 +14,6 @@ type Config struct {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	// Default the API version to v2
-	if d.Get("cb_api_version").(string) == "" {
-		d.Set("cb_api_version", "v2")
-	}
-
 	// Default HTTP timeout to 10 seconds
 	if d.Get("cb_timeout").(int) <= 0 {
 		d.Set("cb_timeout", 10)
@@ -44,9 +39,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		d.Get("cb_protocol").(string),
 		d.Get("cb_host").(string),
 		d.Get("cb_port").(string),
-		d.Get("cb_api_version").(string),
 		d.Get("cb_username").(string),
 		d.Get("cb_password").(string),
+		d.Get("cb_domain").(string),
 		httpClient,
 	)
 

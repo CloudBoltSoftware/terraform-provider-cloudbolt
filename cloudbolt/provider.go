@@ -22,11 +22,6 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "CloudBolt API Port",
 			},
-			"cb_api_version": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "CloudBolt API Version; e.g., v2",
-			},
 			"cb_timeout": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -47,11 +42,19 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "CloudBolt API Password",
 			},
+			"cb_domain": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "CloudBolt API Domain",
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"cloudbolt_object_ref": dataSourceCloudBoltObject(),
-			"cloudbolt_group_ref":  dataSourceCloudBoltGroup(),
+			// 	x"cloudbolt_object_ref": dataSourceCloudBoltObject(),
+			"cloudbolt_group_ref":       dataSourceCloudBoltGroup(),
+			"cloudbolt_blueprint_ref":   dataSourceCloudBoltBlueprint(),
+			"cloudbolt_environment_ref": dataSourceCloudBoltEnvironment(),
+			"cloudbolt_osbuild_ref":     dataSourceCloudBoltOSBuild(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
