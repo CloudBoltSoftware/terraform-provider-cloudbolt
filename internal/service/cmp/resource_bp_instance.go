@@ -1,6 +1,7 @@
 package cmp
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -8,16 +9,17 @@ import (
 	"time"
 
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func ResourceBPInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBPInstanceCreate,
-		Read:   resourceBPInstanceRead,
-		Update: resourceBPInstanceUpdate,
-		Delete: resourceBPInstanceDelete,
+		CreateContext: resourceBPInstanceCreate,
+		ReadContext:   resourceBPInstanceRead,
+		UpdateContext: resourceBPInstanceUpdate,
+		DeleteContext: resourceBPInstanceDelete,
 
 		Schema: map[string]*schema.Schema{
 			"group": {
@@ -193,18 +195,14 @@ func ResourceBPInstance() *schema.Resource {
 	}
 }
 
-func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
+func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
-
-	// log.Printf("[!!] apiClient in resourceBPInstanceCreate: %+v", apiClient)
 
 	bpItems := make([]map[string]interface{}, 0)
 	bpItemList := d.Get("deployment_item").(*schema.Set).List()
 	bpParams := d.Get("parameters").(map[string]interface{})
 	for _, v := range bpItemList {
 		m := v.(map[string]interface{})
-		log.Printf("[!!] m in resourceBPInstanceCreate: %+v", m)
-
 		bpItem := map[string]interface{}{
 			"bp-item-name":    m["name"].(string),
 			"bp-item-paramas": m["parameters"].(map[string]interface{}),
@@ -225,7 +223,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 
 	order, err := apiClient.DeployBlueprint(d.Get("group").(string), d.Get("blueprint_id").(string), d.Get("resource_name").(string), bpParams, bpItems)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateChangeConf := resource.StateChangeConf{
@@ -238,13 +236,13 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 
 	_, err = stateChangeConf.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for Order (%s) to complete. Error: %s", order.ID, err)
+		return diag.Errorf("Error waiting for Order (%s) to complete. Error: %s", order.ID, err)
 	}
 
 	// Retrieve the updated order to obtain Resource ID
 	order, err = apiClient.GetOrder(order.ID)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	var resourceId string
@@ -252,7 +250,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	for _, j := range order.Links.Jobs {
 		job, joberr := apiClient.GetJob(j.Href)
 		if joberr != nil {
-			return joberr
+			return diag.FromErr(joberr)
 		}
 
 		if job.Type == "deploy_blueprint" {
@@ -273,7 +271,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if resourceId == "" && len(servers) == 0 {
-		return fmt.Errorf("Error Order (%s) does not have a Resource or Server", order.ID)
+		return diag.Errorf("Error Order (%s) does not have a Resource or Server", order.ID)
 	}
 
 	if resourceId != "" {
@@ -282,7 +280,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 		d.SetId(strings.Join(servers, "_"))
 	}
 
-	return resourceBPInstanceRead(d, m)
+	return resourceBPInstanceRead(ctx, d, m)
 }
 
 func parseAttributes(attributes []map[string]interface{}) (map[string]interface{}, error) {
@@ -376,43 +374,32 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 	return server, nil
 }
 
-func resourceBPInstanceRead(d *schema.ResourceData, m interface{}) error {
+func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
 
-	log.Printf("[!!] apiClient in resourceBPInstanceRead: %+v", apiClient)
-
 	if instanceType == "Resource" {
-		log.Printf("resourceBPInstanceRead: instanceType - %s", instanceType)
 		res, err := apiClient.GetResource(d.Id())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
-		log.Printf("resourceBPInstanceRead: Adding Servers")
 		var servers []map[string]interface{}
 		for _, s := range res.Links.Servers {
 			svr, svrerr := apiClient.GetServer(s.Href)
 			if svrerr != nil {
-				return fmt.Errorf("Error getting Servers for Resource: %s", svrerr)
+				return diag.Errorf("Error getting Servers for Resource: %s", svrerr)
 			}
 
-			log.Printf("resourceBPInstanceRead: sbr - %+v", svr)
-
 			server, _ := parseServer(svr)
-			log.Printf("resourceBPInstanceRead: server - %+v", server)
 			servers = append(servers, server)
 		}
 
 		if servers != nil {
-			log.Printf("resourceBPInstanceRead: Set Server")
-			log.Printf("resourceBPInstanceRead: server - %+v", servers)
 			d.Set("servers", servers)
 		}
 
 		resAttributes, _ := parseAttributes(res.Attributes)
-
-		log.Printf("resourceBPInstanceRead: resAttributes - %+v", resAttributes)
 		d.Set("attributes", resAttributes)
 	} else {
 		serverIds := strings.Split(d.Id(), "_")
@@ -421,7 +408,7 @@ func resourceBPInstanceRead(d *schema.ResourceData, m interface{}) error {
 		for _, serverId := range serverIds {
 			svr, svrerr := apiClient.GetServerById(serverId)
 			if svrerr != nil {
-				return fmt.Errorf("Error getting Server: %s", svrerr)
+				return diag.Errorf("Error getting Server: %s", svrerr)
 			}
 
 			server, _ := parseServer(svr)
@@ -436,26 +423,22 @@ func resourceBPInstanceRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceBPInstanceUpdate(d *schema.ResourceData, m interface{}) error {
-	return resourceBPInstanceRead(d, m)
+func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return resourceBPInstanceRead(ctx, d, m)
 }
 
-func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
+func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
-
-	log.Printf("[!!] apiClient in resourceBPInstanceDelete: %+v", apiClient)
 
 	if instanceType == "Resource" {
 		res, err := apiClient.GetResource(d.Id())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
-		log.Printf("Resource Result: %+v", res)
 		var delActionPath string
 		for _, v := range res.Links.Actions {
-			log.Printf("Action Link: %+v", v)
 			if v.Title == "Delete" {
 				delActionPath = v.Href
 				break
@@ -463,12 +446,12 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if delActionPath == "" {
-			return fmt.Errorf("Error deleting resource (%s).", d.Id())
+			return diag.Errorf("Error deleting resource (%s).", d.Id())
 		}
 
 		job, delerr := apiClient.SubmitAction(delActionPath, res.Links.Self.Href)
 		if delerr != nil {
-			return delerr
+			return diag.FromErr(delerr)
 		}
 
 		stateChangeConf := resource.StateChangeConf{
@@ -481,7 +464,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 
 		_, err = stateChangeConf.WaitForState()
 		if err != nil {
-			return fmt.Errorf("Error waiting for Job (%s) to complete: %s", job.Links.Self.Href, err)
+			return diag.Errorf("Error waiting for Job (%s) to complete: %s", job.Links.Self.Href, err)
 		}
 	} else {
 		serverIds := strings.Split(d.Id(), "_")
@@ -489,7 +472,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 		for _, serverId := range serverIds {
 			decomResult, err := apiClient.DecomServer(serverId)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 
 			var stateChangeConf resource.StateChangeConf
@@ -506,7 +489,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 
 			_, err = stateChangeConf.WaitForState()
 			if err != nil {
-				return fmt.Errorf("Error waiting for Decom Server (%s) to complete: %s", decomResult.Links.Self.Href, err)
+				return diag.Errorf("Error waiting for Decom Server (%s) to complete: %s", decomResult.Links.Self.Href, err)
 			}
 		}
 	}

@@ -1,12 +1,14 @@
 package provider
 
 import (
+	"context"
 	"crypto/tls"
 	"net/http"
 	"time"
 
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
 	"github.com/cloudboltsoftware/terraform-provider-cloudbolt/internal/service/cmp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -56,7 +58,6 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			// 	x"cloudbolt_object_ref": dataSourceCloudBoltObject(),
 			"cloudbolt_group_ref":       cmp.DataSourceCloudBoltGroup(),
 			"cloudbolt_blueprint_ref":   cmp.DataSourceCloudBoltBlueprint(),
 			"cloudbolt_environment_ref": cmp.DataSourceCloudBoltEnvironment(),
@@ -67,11 +68,11 @@ func Provider() *schema.Provider {
 			"cloudbolt_bp_instance": cmp.ResourceBPInstance(),
 		},
 
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Default HTTP timeout to 10 seconds
 	if d.Get("cb_timeout").(int) <= 0 {
 		d.Set("cb_timeout", 10)

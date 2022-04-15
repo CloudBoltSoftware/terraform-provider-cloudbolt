@@ -1,15 +1,16 @@
 package cmp
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func DataSourceCloudBoltBlueprint() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCloudBoltBlueprintRead,
+		ReadContext: dataSourceCloudBoltBlueprintRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -31,13 +32,13 @@ func DataSourceCloudBoltBlueprint() *schema.Resource {
 	}
 }
 
-func dataSourceCloudBoltBlueprintRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceCloudBoltBlueprintRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
 	name := d.Get("name").(string)
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return fmt.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id  is required")
 	}
 
 	var blueprint *cbclient.CloudBoltReferenceFields
@@ -49,7 +50,7 @@ func dataSourceCloudBoltBlueprintRead(d *schema.ResourceData, m interface{}) err
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error loading CloudBolt Blueprint: %s", err)
+		return diag.FromErr(err)
 	}
 
 	d.SetId(blueprint.ID)
