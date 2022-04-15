@@ -1,20 +1,25 @@
-package cloudbolt
+package cmp
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceCloudBoltGroup() *schema.Resource {
+func DataSourceCloudBoltGroup() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceCloudBoltGroupRead,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The global id of a CloudBolt Group",
+			},
 			"name": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "The name or absolute path to the CloudBolt Group",
 			},
 			"url_path": {
@@ -27,14 +32,21 @@ func dataSourceCloudBoltGroup() *schema.Resource {
 }
 
 func dataSourceCloudBoltGroupRead(d *schema.ResourceData, m interface{}) error {
-	log.Printf("in dataSoruceCloudBoltGroupRead")
-	apiClient := m.(Config).APIClient
+	apiClient := m.(*cbclient.CloudBoltClient)
+	name := d.Get("name").(string)
+	id := d.Get("id").(string)
 
-	log.Printf("[!!] apiClient: %+v", apiClient)
+	if id == "" && name == "" {
+		return fmt.Errorf("Either name or id  is required")
+	}
 
-	group, err := apiClient.GetGroup(d.Get("name").(string))
-
-	log.Printf("[!!] group : %+v", group)
+	var group *cbclient.CloudBoltGroup
+	var err error
+	if name != "" {
+		group, err = apiClient.GetGroup(name)
+	} else {
+		group, err = apiClient.GetGroupById(id)
+	}
 
 	if err != nil {
 		return fmt.Errorf("Error loading CloudBolt Group: %s", err)
@@ -42,6 +54,10 @@ func dataSourceCloudBoltGroupRead(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(group.ID)
 	d.Set("url_path", group.Links.Self.Href)
+
+	if name == "" {
+		d.Set("name", group.Name)
+	}
 
 	return nil
 }
