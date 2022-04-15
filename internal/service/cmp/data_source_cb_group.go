@@ -1,4 +1,4 @@
-package cloudbolt
+package cmp
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceCloudBoltGroup() *schema.Resource {
+func DataSourceCloudBoltGroup() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceCloudBoltGroupRead,
 
@@ -32,7 +32,7 @@ func dataSourceCloudBoltGroup() *schema.Resource {
 }
 
 func dataSourceCloudBoltGroupRead(d *schema.ResourceData, m interface{}) error {
-	apiClient := m.(Config).APIClient
+	apiClient := m.(*cbclient.CloudBoltClient)
 	name := d.Get("name").(string)
 	id := d.Get("id").(string)
 

@@ -1,4 +1,4 @@
-package cloudbolt
+package cmp
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceBPInstance() *schema.Resource {
+func ResourceBPInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBPInstanceCreate,
 		Read:   resourceBPInstanceRead,
@@ -194,7 +194,7 @@ func resourceBPInstance() *schema.Resource {
 }
 
 func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
-	apiClient := m.(Config).APIClient
+	apiClient := m.(*cbclient.CloudBoltClient)
 
 	// log.Printf("[!!] apiClient in resourceBPInstanceCreate: %+v", apiClient)
 
@@ -233,7 +233,7 @@ func resourceBPInstanceCreate(d *schema.ResourceData, m interface{}) error {
 		Timeout: 10 * time.Minute,
 		Pending: []string{"ACTIVE"},
 		Target:  []string{"SUCCESS"},
-		Refresh: OrderStateRefreshFunc(m.(Config), order.ID),
+		Refresh: OrderStateRefreshFunc(apiClient, order.ID),
 	}
 
 	_, err = stateChangeConf.WaitForState()
@@ -377,7 +377,7 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 }
 
 func resourceBPInstanceRead(d *schema.ResourceData, m interface{}) error {
-	apiClient := m.(Config).APIClient
+	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
 
 	log.Printf("[!!] apiClient in resourceBPInstanceRead: %+v", apiClient)
@@ -441,7 +441,7 @@ func resourceBPInstanceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
-	apiClient := m.(Config).APIClient
+	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
 
 	log.Printf("[!!] apiClient in resourceBPInstanceDelete: %+v", apiClient)
@@ -476,7 +476,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 			Timeout: 5 * time.Minute,
 			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
 			Target:  []string{"SUCCESS"},
-			Refresh: JobStateRefreshFunc(m.(Config), job.Links.Self.Href),
+			Refresh: JobStateRefreshFunc(apiClient, job.Links.Self.Href),
 		}
 
 		_, err = stateChangeConf.WaitForState()
@@ -498,10 +498,10 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 			stateChangeConf.Target = []string{"SUCCESS"}
 			if strings.HasPrefix(decomResult.ID, "ORD-") {
 				stateChangeConf.Pending = []string{"ACTIVE"}
-				stateChangeConf.Refresh = OrderStateRefreshFunc(m.(Config), decomResult.ID)
+				stateChangeConf.Refresh = OrderStateRefreshFunc(apiClient, decomResult.ID)
 			} else {
 				stateChangeConf.Pending = []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"}
-				stateChangeConf.Refresh = JobStateRefreshFunc(m.(Config), decomResult.Links.Self.Href)
+				stateChangeConf.Refresh = JobStateRefreshFunc(apiClient, decomResult.Links.Self.Href)
 			}
 
 			_, err = stateChangeConf.WaitForState()
@@ -514,11 +514,7 @@ func resourceBPInstanceDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func OrderStateRefreshFunc(config Config, orderId string) resource.StateRefreshFunc {
-	apiClient := config.APIClient
-
-	log.Printf("[!!] apiClient in OrderStateRefreshFunc: %+v", apiClient)
-
+func OrderStateRefreshFunc(apiClient *cbclient.CloudBoltClient, orderId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		order, err := apiClient.GetOrder(orderId)
 
@@ -534,11 +530,7 @@ func OrderStateRefreshFunc(config Config, orderId string) resource.StateRefreshF
 	}
 }
 
-func JobStateRefreshFunc(config Config, jobPath string) resource.StateRefreshFunc {
-	apiClient := config.APIClient
-
-	log.Printf("[!!] apiClient in JobStateRefreshFunc: %+v", apiClient)
-
+func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		job, err := apiClient.GetJob(jobPath)
 		if err != nil {
