@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,9 +17,11 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"cb_protocol": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "CloudBolt API Protocol",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "https",
+				Description:  "CloudBolt API Protocol,  Default (https)",
+				ValidateFunc: checkProtocol,
 			},
 			"cb_host": {
 				Type:        schema.TypeString,
@@ -27,33 +30,42 @@ func Provider() *schema.Provider {
 			},
 			"cb_port": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "CloudBolt API Port",
+				Optional:    true,
+				Default:     "443",
+				Description: "CloudBolt API Port, Default (443)",
 			},
 			"cb_timeout": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Description: "Timeout in seconds",
+				Default:     10,
+				Description: "Timeout in seconds, Default (10)",
 			},
 			"cb_insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Disable SSL Verification",
+				Default:     true,
+				Description: "Disable SSL Verification, Default (true)",
 			},
 			"cb_username": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "CloudBolt API Username",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "CloudBolt API Username, required if not provided in environment variable CB_USERNAME",
+				DefaultFunc:  schema.EnvDefaultFunc("CB_USERNAME", nil),
+				ValidateFunc: checkNotEmptyString,
 			},
 			"cb_password": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "CloudBolt API Password",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				Description:  "CloudBolt API Password, required if not provided in environment variable CB_PASSWORD",
+				DefaultFunc:  schema.EnvDefaultFunc("CB_PASSWORD", nil),
+				ValidateFunc: checkNotEmptyString,
 			},
 			"cb_domain": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "CloudBolt API Domain",
+				Description: "CloudBolt API Domain, can also be set using environment variable CB_DOMAIN",
+				DefaultFunc: schema.EnvDefaultFunc("CB_DOMAIN", ""),
 			},
 		},
 
@@ -73,14 +85,26 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	// Default HTTP timeout to 10 seconds
-	if d.Get("cb_timeout").(int) <= 0 {
-		d.Set("cb_timeout", 10)
+	var diags diag.Diagnostics
+
+	// Need to validate CB_USERNAME enviornment variable is set if cb_username not in the config.
+	if d.Get("cb_username").(string) == "" {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "\"cb_username must be set or CB_USERNAME environment variable must set.",
+		})
 	}
 
-	// Default Protocol is HTTPS
-	if d.Get("cb_protocol").(string) == "" {
-		d.Set("cb_protocol", "https")
+	// Need to validate CB_PASSWORD enviornment variable is set if cb_password not in the config.
+	if d.Get("cb_password").(string) == "" {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "\"cb_password must be set or CB_PASSWORD environment variable must set.",
+		})
+	}
+
+	if diags != nil {
+		return nil, diags
 	}
 
 	httpClient := &http.Client{
@@ -104,5 +128,27 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		httpClient,
 	)
 
-	return apiClient, nil
+	return apiClient, diags
+}
+
+func checkNotEmptyString(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	if v == "" {
+		errs = append(errs, fmt.Errorf("%q is required and most not be empty.", key))
+
+		return warns, errs
+	}
+
+	return warns, errs
+}
+
+func checkProtocol(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	if v != "http" && v != "https" {
+		errs = append(errs, fmt.Errorf("%q must be either \"https\" or \"http\".", key))
+
+		return warns, errs
+	}
+
+	return warns, errs
 }

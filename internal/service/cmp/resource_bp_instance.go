@@ -23,41 +23,50 @@ func ResourceBPInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"group": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The relative API URL path for the CloudBolt Group",
 			},
 			"blueprint_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The global Id for the CloudBolt Blueprint",
 			},
 			"parameters": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Parameters Name/Value pair",
 			},
 			"resource_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name for the created CloudBolt Resoucce",
 			},
 			"deployment_item": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:        schema.TypeSet,
+				Required:    true,
+				Description: "Set of blueprint deployment items",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The reference name for the blueprint deployment item",
 						},
 						"environment": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The relative API URL path for the CloudBolt Environment",
 						},
 						"osbuild": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The relative API URL path for the CloudBolt OS Build",
 						},
 						"parameters": {
-							Type:     schema.TypeMap,
-							Required: true,
+							Type:        schema.TypeMap,
+							Required:    true,
+							Description: "Parameter Name/Value pair",
 						},
 					},
 				},
@@ -68,44 +77,54 @@ func ResourceBPInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server Hostname",
 						},
 						"ip_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server IP Address",
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "CloudBolt Server Status",
 						},
 						"mac": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server MAC Address",
 						},
 						"power_status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server Power Status",
 						},
 						"date_added_to_cloudbolt": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Date the server was added to CloudBolt",
 						},
 						"cpu_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "CPU Count",
 						},
 						"memory_size_gb": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Total Memory in GB",
 						},
 						"disk_size_gb": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Total Disk Size in GB",
 						},
 						"notes": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server Notes",
 						},
 						"labels": {
 							Type:     schema.TypeList,
@@ -113,10 +132,12 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "Server Labels",
 						},
 						"os_family": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server OS Family",
 						},
 						"attributes": {
 							Type:     schema.TypeMap,
@@ -124,6 +145,7 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "CloudBolt Server attributes",
 						},
 						"rate_breakdown": {
 							Type:     schema.TypeMap,
@@ -131,6 +153,7 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "Server Rate Breakdown",
 						},
 						"tech_specific_attributes": {
 							Type:     schema.TypeMap,
@@ -138,6 +161,7 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "Resource Handler technical specific attributes",
 						},
 						"disks": {
 							Type:     schema.TypeList,
@@ -145,19 +169,23 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"uuid": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Unique ID of Disk",
 									},
 									"name": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Name of Disk",
 									},
 									"disk_size_gb": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Disk Size in GB",
 									},
 								},
 							},
+							Description: "Server disks",
 						},
 						"networks": {
 							Type:     schema.TypeList,
@@ -168,28 +196,33 @@ func ResourceBPInstance() *schema.Resource {
 									Type: schema.TypeString,
 								},
 							},
+							Description: "Server NICs",
 						},
 					},
 				},
 			},
 			"server_hostname": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Server Hostname",
 			},
 			"server_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Server IP Address",
 			},
 			"instance_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The type of deployed instance Resource or Server",
 			},
 			"attributes": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Computed: true,
+				Computed:    true,
+				Description: "CloudBolt Resource attributes",
 			},
 		},
 	}
