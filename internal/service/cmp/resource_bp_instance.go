@@ -3,7 +3,6 @@ package cmp
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -287,7 +286,6 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		if job.Type == "deploy_blueprint" {
-			log.Println("[!!] Deploying Blueprint")
 			if len(job.Links.Resource.Href) > 0 {
 				resourceId = job.Links.Resource.Href
 				d.Set("instance_type", "Resource")
@@ -325,14 +323,11 @@ func parseAttributes(attributes []map[string]interface{}) (map[string]interface{
 
 		switch attrType {
 		case "BOOL":
-			log.Printf("resourceBPInstanceRead: BOOLEAN")
 			attrValue, _ := attr["value"].(bool)
 			resAttributes[attrName] = strconv.FormatBool(attrValue)
 		case "DEC", "INT":
-			log.Printf("resourceBPInstanceRead: FLOAT")
 			attrValue, _ := attr["value"].(float64)
 			resAttributes[attrName] = fmt.Sprintf("%g", attrValue)
-			log.Printf("resourceBPInstanceRead: Converted Value - %+v", resAttributes[attrName])
 		default:
 			attrValue, _ := attr["value"].(string)
 			resAttributes[attrName] = attrValue
