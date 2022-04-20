@@ -38,7 +38,7 @@ func dataSourceCloudBoltEnvironmentRead(ctx context.Context, d *schema.ResourceD
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return diag.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id is required")
 	}
 
 	var environment *cbclient.CloudBoltReferenceFields

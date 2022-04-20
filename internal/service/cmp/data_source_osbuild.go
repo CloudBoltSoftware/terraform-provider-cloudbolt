@@ -38,7 +38,7 @@ func dataSourceCloudBoltOSBuildRead(ctx context.Context, d *schema.ResourceData,
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return diag.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id is required")
 	}
 
 	var osbuild *cbclient.CloudBoltReferenceFields

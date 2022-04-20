@@ -232,12 +232,13 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 
 	bpItems := make([]map[string]interface{}, 0)
 	bpItemList := d.Get("deployment_item").(*schema.Set).List()
-	bpParams := d.Get("parameters").(map[string]interface{})
+	bpParams := normalizeParameters(d.Get("parameters").(map[string]interface{}))
 	for _, v := range bpItemList {
 		m := v.(map[string]interface{})
+		itemParams := normalizeParameters(m["parameters"].(map[string]interface{}))
 		bpItem := map[string]interface{}{
 			"bp-item-name":    m["name"].(string),
-			"bp-item-paramas": m["parameters"].(map[string]interface{}),
+			"bp-item-paramas": itemParams,
 		}
 
 		env, ok := m["environment"]
@@ -554,4 +555,20 @@ func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) re
 
 		return job, job.Status, nil
 	}
+}
+
+func normalizeParameters(params map[string]interface{}) map[string]interface{} {
+	normalizedParams := make(map[string]interface{}, 0)
+
+	for k, v := range params {
+		value := v.(string)
+		if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
+			parameterValues := strings.Split(value[1:len(value)-1], "|")
+			normalizedParams[k] = parameterValues
+		} else {
+			normalizedParams[k] = v
+		}
+	}
+
+	return normalizedParams
 }

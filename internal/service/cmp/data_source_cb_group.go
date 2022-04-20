@@ -38,7 +38,7 @@ func dataSourceCloudBoltGroupRead(ctx context.Context, d *schema.ResourceData, m
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return diag.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id is required")
 	}
 
 	var group *cbclient.CloudBoltGroup
