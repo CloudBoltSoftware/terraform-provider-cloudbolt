@@ -26,8 +26,8 @@ data "cloudbolt_group_ref" "group_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt Group, required if "name" not provided
-- `name` (String) The name or absolute path to the CloudBolt Group, required if "id" not provided
+- `id` (String) The global id of a CloudBolt Group, if "name" not provided
+- `name` (String) The name or absolute path to the CloudBolt Group, if "id" not provided
 
 ### Read-Only
 

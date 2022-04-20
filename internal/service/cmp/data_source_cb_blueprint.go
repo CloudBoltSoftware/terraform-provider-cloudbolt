@@ -16,12 +16,12 @@ func DataSourceCloudBoltBlueprint() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt Blueprint, required if \"name\" not provided",
+				Description: "The global id of a CloudBolt Blueprint, if \"name\" not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "he name of a CloudBolt Blueprint, required if \"id\" not provided",
+				Description: "The name of a CloudBolt Blueprint, if \"id\" not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
