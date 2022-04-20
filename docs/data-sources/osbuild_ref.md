@@ -26,8 +26,8 @@ data "cloudbolt_osbuild_ref" "osbuild_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt OS Build, if "name" not provided
-- `name` (String) The name of a CloudBolt OS Build, if "id" not provided
+- `id` (String) The global id of a CloudBolt OS Build, required if "name" not provided
+- `name` (String) The name of a CloudBolt OS Build, required if "id" not provided
 
 ### Read-Only
 

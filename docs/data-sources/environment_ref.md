@@ -26,8 +26,8 @@ data "cloudbolt_environment_ref" "environment_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt Environment, if "name" not provided
-- `name` (String) The name of a CloudBolt Environment, if "id" not provided
+- `id` (String) The global id of a CloudBolt Environment, required if "name" not provided
+- `name` (String) The name of a CloudBolt Environment, required if "id" not provided
 
 ### Read-Only
 

@@ -26,8 +26,8 @@ data "cloudbolt_blueprint_ref" "blueprint_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt Blueprint, if "name" not provided
-- `name` (String) The name of a CloudBolt Blueprint, if "id" not provided
+- `id` (String) The global id of a CloudBolt Blueprint, required if "name" not provided
+- `name` (String) The name of a CloudBolt Blueprint, required if "id" not provided
 
 ### Read-Only
 

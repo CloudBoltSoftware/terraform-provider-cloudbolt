@@ -16,12 +16,12 @@ func DataSourceCloudBoltOSBuild() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt OS Build, if \"name\" not provided",
+				Description: "The global id of a CloudBolt OS Build, required if \"name\" not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of a CloudBolt OS Build, if \"id\" not provided",
+				Description: "The name of a CloudBolt OS Build, required if \"id\" not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,

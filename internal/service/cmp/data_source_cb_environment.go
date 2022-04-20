@@ -16,12 +16,12 @@ func DataSourceCloudBoltEnvironment() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt Environment, if \"name\" not provided",
+				Description: "The global id of a CloudBolt Environment, required if \"name\" not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of a CloudBolt Environment, if \"id\" not provided",
+				Description: "The name of a CloudBolt Environment, required if \"id\" not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
