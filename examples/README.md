@@ -2,7 +2,7 @@
 
 This directory contains a set of examples of using various CloudBolt resources and data sources with Terraform. The examples each have their own README containing more details on what the example does.
 
-To run any example, clone the repository, set the variables (see Setting Variables below fir details) and run terraform apply within the example's own directory.
+To run any example, clone the repository, set the variables (see Setting Variables below for details) and run terraform apply within the example's own directory.
 
 For example:
 
