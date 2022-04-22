@@ -1,8 +1,6 @@
-CB_PROTOCOL="http"
-CB_HOST="127.0.0.1"
-CB_PORT="8000"
-
-CB_ENVIRONMENT="TerraformEnvironment01"
-CB_GROUP="TerraformGroup01"
+CB_PROTOCOL="Enter Protocol http or https"
+CB_HOST="Enter Your CloudBolt Host"
+CB_PORT="Enter Your CloudBolt Port"
 CB_PASSWORD="TerraformPassword01"
 CB_USERNAME="TerraformUser01"
+CB_GROUP="Enter the full path of your group, i.e. /My Org/My Business Unit"
