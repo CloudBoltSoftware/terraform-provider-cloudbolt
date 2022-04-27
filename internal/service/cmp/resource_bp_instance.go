@@ -338,6 +338,44 @@ func parseAttributes(attributes []map[string]interface{}) (map[string]interface{
 	return resAttributes, nil
 }
 
+func convertValuesToString(attributes map[string]interface{}) map[string]interface{} {
+	stringValues := make(map[string]interface{}, 0)
+
+	for k, v := range attributes {
+		var stringValue string
+
+		boolValue, ok := v.(bool)
+		if ok {
+			stringValue = strconv.FormatBool(boolValue)
+		}
+
+		if stringValue == "" {
+			intValue, ok := v.(int)
+			if ok {
+				stringValue = fmt.Sprint(intValue)
+			}
+		}
+
+		if stringValue == "" {
+			floatValue, ok := v.(float64)
+			if ok {
+				stringValue = fmt.Sprintf("%g", floatValue)
+			}
+		}
+
+		if stringValue == "" {
+			strValue, ok := v.(string)
+			if ok {
+				stringValue = strValue
+			}
+		}
+
+		stringValues[k] = stringValue
+	}
+
+	return stringValues
+}
+
 func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) {
 	server := map[string]interface{}{
 		"hostname":                svr.Hostname,
@@ -394,7 +432,7 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 	}
 
 	if len(svr.TechSpecificAttributes) > 0 {
-		server["tech_specific_attributes"] = svr.TechSpecificAttributes
+		server["tech_specific_attributes"] = convertValuesToString(svr.TechSpecificAttributes)
 	}
 
 	svrAttributes, _ := parseAttributes(svr.Attributes)

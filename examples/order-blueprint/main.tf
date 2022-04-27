@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     cloudbolt = {
-      source  = "hashicorp.com/cbsw/cloudbolt"
+      source  = "CloudBoltSoftware/cloudbolt"
       version = "1.0.0"
     }
   }

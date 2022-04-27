@@ -3,8 +3,8 @@
 ###
 
 TF_EXAMPLES=$(shell find examples -not -path '*/\.*' -regex 'examples/.*' -type 'd')
-HOSTNAME=hashicorp.com
-NAMESPACE=cbsw
+HOSTNAME=registry.terraform.io
+NAMESPACE=CloudBoltSoftware
 NAME=cloudbolt
 VERSION=1.0.0
 BINARY=terraform-provider-${NAME}

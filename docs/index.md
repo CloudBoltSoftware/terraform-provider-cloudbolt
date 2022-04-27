@@ -19,7 +19,7 @@ To learn the basics of Terraform using this provider, follow the hands-on [get s
 terraform {
   required_providers {
     cloudbolt = {
-      source  = "cloudbolt.io/cbsw/cloudbolt"
+      source  = "CloudBoltSoftware/cloudbolt"
       version = "1.0.0"
     }
   }
@@ -32,7 +32,7 @@ provider "cloudbolt" {
   cb_username =    "admin"
   cb_password =    "admin"
   cb_insecure =    false
-  cb_timeout =     30
+  cb_timeout =     300
 }
 ```
 
