@@ -16,12 +16,12 @@ func DataSourceCloudBoltOSBuild() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt OS Build",
+				Description: "The global id of a CloudBolt OS Build, required if \"name\" not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of a CloudBolt OS Build",
+				Description: "The name of a CloudBolt OS Build, required if \"id\" not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
@@ -38,7 +38,7 @@ func dataSourceCloudBoltOSBuildRead(ctx context.Context, d *schema.ResourceData,
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return diag.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id is required")
 	}
 
 	var osbuild *cbclient.CloudBoltReferenceFields

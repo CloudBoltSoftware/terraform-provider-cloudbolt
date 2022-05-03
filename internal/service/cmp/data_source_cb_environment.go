@@ -16,12 +16,12 @@ func DataSourceCloudBoltEnvironment() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt Environment",
+				Description: "The global id of a CloudBolt Environment, required if \"name\" not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of a CloudBolt Environment",
+				Description: "The name of a CloudBolt Environment, required if \"id\" not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
@@ -38,7 +38,7 @@ func dataSourceCloudBoltEnvironmentRead(ctx context.Context, d *schema.ResourceD
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return diag.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id is required")
 	}
 
 	var environment *cbclient.CloudBoltReferenceFields

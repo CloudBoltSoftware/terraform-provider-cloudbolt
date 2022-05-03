@@ -1,19 +1,21 @@
-# terraform-provider-cloudbolt examples
+# CloudBolt Provider Examples
 
-These examples demonstrate how to use the CloudBolt provider.
+This directory contains a set of examples of using various CloudBolt resources and data sources with Terraform. The examples each have their own README containing more details on what the example does.
 
-They are periodically run to verify the Provider is compatible with the latest version of CloudBolt.
+To run any example, clone the repository, set the variables (see Setting Variables below for details) and run terraform apply within the example's own directory.
 
-## Usage
+For example:
 
-Navigate to any of the directories here and run `make run` to `terraform init`, `terraform plan` and `terraform apply`.
-Run `make destroy` to teardown.
-
-## Infrastructure
+```
+$ git clone https://github.com/CloudBoltSoftware/terraform-provider-cloudbolt.git
+$ cd terraform-provider-cloudbolt/examples/order-blueprint
+$ terraform apply
+...
+## Set Variables
 
 To run an example you will want to copy `terraform.tfvars.dist` to `terraform.tfvars` in each example and fill each in with the appropriate variables.
 
-Each example outlines additional infrastructure that is expected on the CloudBolt server for it to run correctly.
+Each example outlines additional prerequesties that is expected on the CloudBolt server for it to run correctly.
 
 ## Troublehsooting
 

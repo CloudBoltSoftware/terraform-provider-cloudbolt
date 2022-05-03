@@ -16,12 +16,12 @@ func DataSourceCloudBoltBlueprint() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt Blueprint",
+				Description: "The global id of a CloudBolt Blueprint, required if \"name\" not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of a CloudBolt Blueprint",
+				Description: "The name of a CloudBolt Blueprint, required if \"id\" not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
@@ -38,7 +38,7 @@ func dataSourceCloudBoltBlueprintRead(ctx context.Context, d *schema.ResourceDat
 	id := d.Get("id").(string)
 
 	if id == "" && name == "" {
-		return diag.Errorf("Either name or id  is required")
+		return diag.Errorf("Either name or id is required")
 	}
 
 	var blueprint *cbclient.CloudBoltReferenceFields

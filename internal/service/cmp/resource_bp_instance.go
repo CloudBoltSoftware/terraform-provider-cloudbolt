@@ -3,7 +3,6 @@ package cmp
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -23,41 +22,50 @@ func ResourceBPInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"group": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The relative API URL path for the CloudBolt Group",
 			},
 			"blueprint_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The global Id for the CloudBolt Blueprint",
 			},
 			"parameters": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Parameters Name/Value pair",
 			},
 			"resource_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name for the created CloudBolt Resoucce",
 			},
 			"deployment_item": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:        schema.TypeSet,
+				Required:    true,
+				Description: "Set of blueprint deployment items",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The reference name for the blueprint deployment item",
 						},
 						"environment": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The relative API URL path for the CloudBolt Environment",
 						},
 						"osbuild": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The relative API URL path for the CloudBolt OS Build",
 						},
 						"parameters": {
-							Type:     schema.TypeMap,
-							Required: true,
+							Type:        schema.TypeMap,
+							Required:    true,
+							Description: "Parameter Name/Value pair",
 						},
 					},
 				},
@@ -68,44 +76,54 @@ func ResourceBPInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server Hostname",
 						},
 						"ip_address": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server IP Address",
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "CloudBolt Server Status",
 						},
 						"mac": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server MAC Address",
 						},
 						"power_status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server Power Status",
 						},
 						"date_added_to_cloudbolt": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Date the server was added to CloudBolt",
 						},
 						"cpu_count": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "CPU Count",
 						},
 						"memory_size_gb": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Total Memory in GB",
 						},
 						"disk_size_gb": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Total Disk Size in GB",
 						},
 						"notes": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server Notes",
 						},
 						"labels": {
 							Type:     schema.TypeList,
@@ -113,10 +131,12 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "Server Labels",
 						},
 						"os_family": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Server OS Family",
 						},
 						"attributes": {
 							Type:     schema.TypeMap,
@@ -124,6 +144,7 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "CloudBolt Server attributes",
 						},
 						"rate_breakdown": {
 							Type:     schema.TypeMap,
@@ -131,6 +152,7 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "Server Rate Breakdown",
 						},
 						"tech_specific_attributes": {
 							Type:     schema.TypeMap,
@@ -138,6 +160,7 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "Resource Handler technical specific attributes",
 						},
 						"disks": {
 							Type:     schema.TypeList,
@@ -145,19 +168,23 @@ func ResourceBPInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"uuid": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Unique ID of Disk",
 									},
 									"name": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Name of Disk",
 									},
 									"disk_size_gb": {
-										Type:     schema.TypeInt,
-										Computed: true,
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Disk Size in GB",
 									},
 								},
 							},
+							Description: "Server disks",
 						},
 						"networks": {
 							Type:     schema.TypeList,
@@ -168,28 +195,33 @@ func ResourceBPInstance() *schema.Resource {
 									Type: schema.TypeString,
 								},
 							},
+							Description: "Server NICs",
 						},
 					},
 				},
 			},
 			"server_hostname": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Server Hostname",
 			},
 			"server_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Server IP Address",
 			},
 			"instance_type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The type of deployed instance Resource or Server",
 			},
 			"attributes": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Computed: true,
+				Computed:    true,
+				Description: "CloudBolt Resource attributes",
 			},
 		},
 	}
@@ -200,12 +232,13 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 
 	bpItems := make([]map[string]interface{}, 0)
 	bpItemList := d.Get("deployment_item").(*schema.Set).List()
-	bpParams := d.Get("parameters").(map[string]interface{})
+	bpParams := normalizeParameters(d.Get("parameters").(map[string]interface{}))
 	for _, v := range bpItemList {
 		m := v.(map[string]interface{})
+		itemParams := normalizeParameters(m["parameters"].(map[string]interface{}))
 		bpItem := map[string]interface{}{
 			"bp-item-name":    m["name"].(string),
-			"bp-item-paramas": m["parameters"].(map[string]interface{}),
+			"bp-item-paramas": itemParams,
 		}
 
 		env, ok := m["environment"]
@@ -254,7 +287,6 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		if job.Type == "deploy_blueprint" {
-			log.Println("[!!] Deploying Blueprint")
 			if len(job.Links.Resource.Href) > 0 {
 				resourceId = job.Links.Resource.Href
 				d.Set("instance_type", "Resource")
@@ -292,14 +324,11 @@ func parseAttributes(attributes []map[string]interface{}) (map[string]interface{
 
 		switch attrType {
 		case "BOOL":
-			log.Printf("resourceBPInstanceRead: BOOLEAN")
 			attrValue, _ := attr["value"].(bool)
 			resAttributes[attrName] = strconv.FormatBool(attrValue)
 		case "DEC", "INT":
-			log.Printf("resourceBPInstanceRead: FLOAT")
 			attrValue, _ := attr["value"].(float64)
 			resAttributes[attrName] = fmt.Sprintf("%g", attrValue)
-			log.Printf("resourceBPInstanceRead: Converted Value - %+v", resAttributes[attrName])
 		default:
 			attrValue, _ := attr["value"].(string)
 			resAttributes[attrName] = attrValue
@@ -307,6 +336,44 @@ func parseAttributes(attributes []map[string]interface{}) (map[string]interface{
 	}
 
 	return resAttributes, nil
+}
+
+func convertValuesToString(attributes map[string]interface{}) map[string]interface{} {
+	stringValues := make(map[string]interface{}, 0)
+
+	for k, v := range attributes {
+		var stringValue string
+
+		boolValue, ok := v.(bool)
+		if ok {
+			stringValue = strconv.FormatBool(boolValue)
+		}
+
+		if stringValue == "" {
+			intValue, ok := v.(int)
+			if ok {
+				stringValue = fmt.Sprint(intValue)
+			}
+		}
+
+		if stringValue == "" {
+			floatValue, ok := v.(float64)
+			if ok {
+				stringValue = fmt.Sprintf("%g", floatValue)
+			}
+		}
+
+		if stringValue == "" {
+			strValue, ok := v.(string)
+			if ok {
+				stringValue = strValue
+			}
+		}
+
+		stringValues[k] = stringValue
+	}
+
+	return stringValues
 }
 
 func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) {
@@ -365,7 +432,7 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 	}
 
 	if len(svr.TechSpecificAttributes) > 0 {
-		server["tech_specific_attributes"] = svr.TechSpecificAttributes
+		server["tech_specific_attributes"] = convertValuesToString(svr.TechSpecificAttributes)
 	}
 
 	svrAttributes, _ := parseAttributes(svr.Attributes)
@@ -526,4 +593,20 @@ func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) re
 
 		return job, job.Status, nil
 	}
+}
+
+func normalizeParameters(params map[string]interface{}) map[string]interface{} {
+	normalizedParams := make(map[string]interface{}, 0)
+
+	for k, v := range params {
+		value := v.(string)
+		if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
+			parameterValues := strings.Split(value[1:len(value)-1], "|")
+			normalizedParams[k] = parameterValues
+		} else {
+			normalizedParams[k] = v
+		}
+	}
+
+	return normalizedParams
 }
