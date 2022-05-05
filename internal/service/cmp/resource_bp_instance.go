@@ -41,6 +41,12 @@ func ResourceBPInstance() *schema.Resource {
 				Optional:    true,
 				Description: "The name for the created CloudBolt Resoucce",
 			},
+			"request_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     30,
+				Description: "Timeout in minutes, Default (30)",
+			},
 			"deployment_item": {
 				Type:        schema.TypeSet,
 				Required:    true,
@@ -200,16 +206,6 @@ func ResourceBPInstance() *schema.Resource {
 					},
 				},
 			},
-			"server_hostname": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Server Hostname",
-			},
-			"server_ip": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Server IP Address",
-			},
 			"instance_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -259,9 +255,10 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(err)
 	}
 
+	requestTimeout := d.Get("request_timeout").(int)
 	stateChangeConf := resource.StateChangeConf{
 		Delay:   10 * time.Second,
-		Timeout: 10 * time.Minute,
+		Timeout: time.Duration(requestTimeout) * time.Minute,
 		Pending: []string{"ACTIVE"},
 		Target:  []string{"SUCCESS"},
 		Refresh: OrderStateRefreshFunc(apiClient, order.ID),
@@ -319,58 +316,50 @@ func parseAttributes(attributes []map[string]interface{}) (map[string]interface{
 	resAttributes := make(map[string]interface{}, 0)
 
 	for _, attr := range attributes {
-		attrType, _ := attr["type"].(string)
 		attrName, _ := attr["name"].(string)
-
-		switch attrType {
-		case "BOOL":
-			attrValue, _ := attr["value"].(bool)
-			resAttributes[attrName] = strconv.FormatBool(attrValue)
-		case "DEC", "INT":
-			attrValue, _ := attr["value"].(float64)
-			resAttributes[attrName] = fmt.Sprintf("%g", attrValue)
-		default:
-			attrValue, _ := attr["value"].(string)
-			resAttributes[attrName] = attrValue
-		}
+		resAttributes[attrName] = convertValueToString(attr["value"])
 	}
 
 	return resAttributes, nil
+}
+
+func convertValueToString(value interface{}) string {
+	var stringValue string
+
+	boolValue, ok := value.(bool)
+	if ok {
+		stringValue = strconv.FormatBool(boolValue)
+	}
+
+	if stringValue == "" {
+		intValue, ok := value.(int)
+		if ok {
+			stringValue = fmt.Sprint(intValue)
+		}
+	}
+
+	if stringValue == "" {
+		floatValue, ok := value.(float64)
+		if ok {
+			stringValue = fmt.Sprintf("%g", floatValue)
+		}
+	}
+
+	if stringValue == "" {
+		strValue, ok := value.(string)
+		if ok {
+			stringValue = strValue
+		}
+	}
+
+	return stringValue
 }
 
 func convertValuesToString(attributes map[string]interface{}) map[string]interface{} {
 	stringValues := make(map[string]interface{}, 0)
 
 	for k, v := range attributes {
-		var stringValue string
-
-		boolValue, ok := v.(bool)
-		if ok {
-			stringValue = strconv.FormatBool(boolValue)
-		}
-
-		if stringValue == "" {
-			intValue, ok := v.(int)
-			if ok {
-				stringValue = fmt.Sprint(intValue)
-			}
-		}
-
-		if stringValue == "" {
-			floatValue, ok := v.(float64)
-			if ok {
-				stringValue = fmt.Sprintf("%g", floatValue)
-			}
-		}
-
-		if stringValue == "" {
-			strValue, ok := v.(string)
-			if ok {
-				stringValue = strValue
-			}
-		}
-
-		stringValues[k] = stringValue
+		stringValues[k] = convertValueToString(v)
 	}
 
 	return stringValues
@@ -498,6 +487,7 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
 
+	requestTimeout := d.Get("request_timeout").(int)
 	if instanceType == "Resource" {
 		res, err := apiClient.GetResource(d.Id())
 		if err != nil {
@@ -523,7 +513,7 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 
 		stateChangeConf := resource.StateChangeConf{
 			Delay:   10 * time.Second,
-			Timeout: 5 * time.Minute,
+			Timeout: time.Duration(requestTimeout) * time.Minute,
 			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
 			Target:  []string{"SUCCESS"},
 			Refresh: JobStateRefreshFunc(apiClient, job.Links.Self.Href),
@@ -544,7 +534,7 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 
 			var stateChangeConf resource.StateChangeConf
 			stateChangeConf.Delay = 10 * time.Second
-			stateChangeConf.Timeout = 5 * time.Minute
+			stateChangeConf.Timeout = time.Duration(requestTimeout) * time.Minute
 			stateChangeConf.Target = []string{"SUCCESS"}
 			if strings.HasPrefix(decomResult.ID, "ORD-") {
 				stateChangeConf.Pending = []string{"ACTIVE"}
