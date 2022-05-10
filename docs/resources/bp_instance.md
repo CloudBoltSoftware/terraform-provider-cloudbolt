@@ -59,8 +59,6 @@ resource "cloudbolt_bp_instance" "mycbresource" {
 
 - `attributes` (Map of String) CloudBolt Resource attributes
 - `instance_type` (String) The type of deployedinstance, Resource or Server
-- `server_hostname` (String) Server IP Hostname
-- `server_ip` (String) Server IP Address
 - `servers` (List of Object) (see [below for nested schema](#nestedatt--servers))
 
 <a id="nestedblock--deployment_item"></a>
