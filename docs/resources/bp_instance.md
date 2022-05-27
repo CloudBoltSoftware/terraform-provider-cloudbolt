@@ -67,12 +67,12 @@ resource "cloudbolt_bp_instance" "mycbresource" {
 Required:
 
 - `name` (String) The reference name for the blueprint deployment item
-- `parameters` (Map of String) Parameter Name/Value pair
 
 Optional:
 
 - `environment` (String) The relative API URL path for the CloudBolt Environment
 - `osbuild` (String) The relative API URL path for the CloudBolt OS Build
+- `parameters` (Map of String) Parameter Name/Value pair
 
 
 <a id="nestedatt--servers"></a>

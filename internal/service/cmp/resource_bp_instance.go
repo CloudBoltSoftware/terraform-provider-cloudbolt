@@ -70,7 +70,7 @@ func ResourceBPInstance() *schema.Resource {
 						},
 						"parameters": {
 							Type:        schema.TypeMap,
-							Required:    true,
+							Optional:    true,
 							Description: "Parameter Name/Value pair",
 						},
 					},
