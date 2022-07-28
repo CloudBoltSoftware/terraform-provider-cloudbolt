@@ -70,10 +70,11 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"cloudbolt_group_ref":       cmp.DataSourceCloudBoltGroup(),
-			"cloudbolt_blueprint_ref":   cmp.DataSourceCloudBoltBlueprint(),
-			"cloudbolt_environment_ref": cmp.DataSourceCloudBoltEnvironment(),
-			"cloudbolt_osbuild_ref":     cmp.DataSourceCloudBoltOSBuild(),
+			"cloudbolt_group_ref":            cmp.DataSourceCloudBoltGroup(),
+			"cloudbolt_blueprint_ref":        cmp.DataSourceCloudBoltBlueprint(),
+			"cloudbolt_environment_ref":      cmp.DataSourceCloudBoltEnvironment(),
+			"cloudbolt_osbuild_ref":          cmp.DataSourceCloudBoltOSBuild(),
+			"cloudbolt_resource_handler_ref": cmp.DataSourceCloudBoltResourceHandler(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
