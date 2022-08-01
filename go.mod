@@ -3,7 +3,7 @@ module github.com/cloudboltsoftware/terraform-provider-cloudbolt
 go 1.18
 
 require (
-	github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v1.0.0
+	github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v1.0.1-rc.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.3
 )
 
