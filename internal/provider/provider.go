@@ -91,11 +91,17 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cloudbolt_bp_instance":                 cmp.ResourceBPInstance(),
-			"cloudbolt_1f_module_deployment":        onefuse.ResourceModuleDeployment(),
-			"cloudbolt_1f_ansible_tower_deployment": onefuse.ResourceAnsibleTowerDeployment(),
-			"cloudbolt_1f_dns_record":               onefuse.ResourceDNSReservation(),
-			"cloudbolt_1f_ipam_record":              onefuse.ResourceIPAMReservation(),
+			"cloudbolt_bp_instance":                      cmp.ResourceBPInstance(),
+			"cloudbolt_1f_module_deployment":             onefuse.ResourceModuleDeployment(),
+			"cloudbolt_1f_ansible_tower_deployment":      onefuse.ResourceAnsibleTowerDeployment(),
+			"cloudbolt_1f_dns_record":                    onefuse.ResourceDNSReservation(),
+			"cloudbolt_1f_ipam_record":                   onefuse.ResourceIPAMReservation(),
+			"cloudbolt_1f_naming":                        onefuse.ResourceCustomNaming(),
+			"cloudbolt_1f_microsoft_ad_policy":           onefuse.ResourceMicrosoftADPolicy(),
+			"cloudbolt_1f_microsoft_ad_computer_account": onefuse.ResourceMicrosoftADComputerAccount(),
+			"cloudbolt_1f_scripting_deployment":          onefuse.ResourceScriptingDeployment(),
+			"cloudbolt_1f_vra_deployment":                onefuse.ResourceVraDeployment(),
+			"cloudbolt_1f_servicenow_cmdb_deployment":    onefuse.ResourceServicenowCMDBDeployment(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
