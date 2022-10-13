@@ -23,17 +23,17 @@ func DataSourceVraPolicy() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The name of the OneFuse vRA Policy",
+				Description: "The name of the OneFuse vRealize Automation Policy",
 			},
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The ID of the OneFuse vRA Policy",
+				Description: "The ID of the OneFuse vRealize Automation Policy",
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The description for the OneFuse vRA Policy",
+				Description: "The description for the OneFuse vRealize Automation Policy",
 			},
 		},
 	}
