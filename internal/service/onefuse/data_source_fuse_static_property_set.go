@@ -23,12 +23,12 @@ func DataSourceStaticPropertySet() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The name of the Property Set",
+				Description: "The name of the OneFuse Property Set",
 			},
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The ID of the Property Set",
+				Description: "The ID of the OneFuse Property Set",
 			},
 			"description": {
 				Type:        schema.TypeString,
