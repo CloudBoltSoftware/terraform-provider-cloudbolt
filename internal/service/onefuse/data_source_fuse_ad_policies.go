@@ -23,17 +23,17 @@ func DataSourceADPolicy() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The name of the OneFuse AD Policy",
+				Description: "The name of the OneFuse Active Directory Policy",
 			},
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The ID of the OneFuse AD Policy",
+				Description: "The ID of the OneFuse Active Directory Policy",
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The description for the OneFuse Ansible Tower Policy",
+				Description: "The description for the OneFuse Active Directory Policy",
 			},
 		},
 	}
