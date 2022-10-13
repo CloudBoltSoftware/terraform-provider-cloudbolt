@@ -23,17 +23,17 @@ func DataSourceModulePolicy() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The name of the OneFuse Module Policy",
+				Description: "The name of the OneFuse Pluggable Module Policy",
 			},
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The ID of the OneFuse Module Policy",
+				Description: "The ID of the OneFuse Pluggable Module Policy",
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The description for the OneFuse Module Policy",
+				Description: "The description for the OneFuse Pluggable Module Policy",
 			},
 		},
 	}
