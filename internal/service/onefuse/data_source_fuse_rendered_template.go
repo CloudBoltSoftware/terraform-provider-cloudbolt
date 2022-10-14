@@ -22,12 +22,14 @@ func DataSourceRenderedTemplate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"template": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "OneFuse Template string.",
 			},
 			"template_properties": {
-				Type:     schema.TypeMap,
-				Required: true,
+				Type:        schema.TypeMap,
+				Required:    true,
+				Description: "Additional properties that are referenced and rendered within the Template.",
 			},
 			"value": {
 				Type:     schema.TypeString,

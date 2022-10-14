@@ -19,8 +19,9 @@ func ResourceIPAMReservation() *schema.Resource {
 		DeleteContext: resourceIPAMReservationDelete,
 		Schema: map[string]*schema.Schema{
 			"hostname": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Hostname for the IP Address.",
 			},
 			// hostname could potentially be overridden using the hostname override on the policy,
 			// and therefore will no longer match the hostname given in the resource
@@ -30,13 +31,15 @@ func ResourceIPAMReservation() *schema.Resource {
 				Computed: true,
 			},
 			"policy_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "OneFuse Module Policy ID",
 			},
 			"workspace_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path.",
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
@@ -99,8 +102,9 @@ func ResourceIPAMReservation() *schema.Resource {
 				Optional: true,
 			},
 			"template_properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Additional properties that are referenced within the Policy.",
 			},
 			"request_timeout": {
 				Type:        schema.TypeInt,

@@ -20,22 +20,26 @@ func ResourceVraDeployment() *schema.Resource {
 		DeleteContext: resourceVraDeploymentDelete,
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "OneFuse Module Policy ID.",
 			},
 			"workspace_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path.",
 			},
 			"deployment_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Name of the vRA Deployment.",
 			},
 			"template_properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Additional properties that are referenced within the Policy.",
 			},
 			"deployment_info": {
 				Type:     schema.TypeString,

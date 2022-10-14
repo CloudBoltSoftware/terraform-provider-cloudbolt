@@ -26,25 +26,29 @@ func ResourceAnsibleTowerDeployment() *schema.Resource {
 		DeleteContext: resourceAnsibleTowerDeploymentDelete,
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "OneFuse Module Policy ID",
 			},
 			"workspace_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path,",
 			},
 			"limit": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Ansible Tower Policy Limit. Pattern matches hosts. or example, dev-* will match all host that start with \"dev-\"",
 			},
 			"hosts": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Optional: true,
+				Optional:    true,
+				Description: "List of specific hosts to execute against. Similar to limit, but will match against exact hostnames.",
 			},
 			"template_properties": {
 				Type:     schema.TypeMap,

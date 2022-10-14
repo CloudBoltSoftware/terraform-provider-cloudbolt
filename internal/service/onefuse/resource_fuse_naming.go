@@ -30,22 +30,25 @@ func ResourceCustomNaming() *schema.Resource {
 				ForceNew: true,
 			},
 			"naming_policy_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "OneFuse Module Policy ID.",
 			},
 			"dns_suffix": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "DNS Suffix to append to the Hostname.",
 			},
 			"workspace_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path.",
 			},
 			"template_properties": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Fuse Template Properties",
+				Description: "Additional properties that are referenced within the Policy.",
 			},
 			"request_timeout": {
 				Type:        schema.TypeInt,

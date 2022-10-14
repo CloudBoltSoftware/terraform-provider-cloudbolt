@@ -19,8 +19,9 @@ func ResourceMicrosoftADComputerAccount() *schema.Resource {
 		DeleteContext: resourceMicrosoftADComputerAccountDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Computer Account Name.",
 				// Updates not yet supported for Microsoft Active Directory Computer Names.
 				ForceNew: true,
 				// Suppress diff if both names are the same in Lowercase or Uppercase
@@ -35,13 +36,15 @@ func ResourceMicrosoftADComputerAccount() *schema.Resource {
 				},
 			},
 			"policy_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "OneFuse Module Policy ID.",
 			},
 			"workspace_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path.",
 			},
 			"final_ou": {
 				Type:     schema.TypeString,
@@ -49,8 +52,9 @@ func ResourceMicrosoftADComputerAccount() *schema.Resource {
 				Optional: true,
 			},
 			"template_properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Additional properties that are referenced within the Policy.",
 			},
 			"request_timeout": {
 				Type:        schema.TypeInt,

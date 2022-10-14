@@ -19,32 +19,38 @@ func ResourceDNSReservation() *schema.Resource {
 		DeleteContext: resourceDNSReservationDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Hostname",
 			},
 			"policy_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "OneFuse Module Policy ID.",
 			},
 			"workspace_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path.",
 			},
 			"value": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "IP Address",
 			},
 			"zones": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Required: true,
+				Required:    true,
+				Description: "Array of DNS Zones, comma separated.",
 			},
 			"template_properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Additional properties that are referenced within the Policy.",
 			},
 			"request_timeout": {
 				Type:        schema.TypeInt,

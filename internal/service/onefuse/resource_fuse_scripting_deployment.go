@@ -25,17 +25,20 @@ func ResourceScriptingDeployment() *schema.Resource {
 				Computed: true,
 			},
 			"policy_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "OneFuse Module Policy ID.",
 			},
 			"workspace_url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "OneFuse Workspace URL path.",
 			},
 			"template_properties": {
-				Type:     schema.TypeMap,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Additional properties that are referenced within the Policy.",
 			},
 			"provisioning_details": {
 				Type:     schema.TypeString,
