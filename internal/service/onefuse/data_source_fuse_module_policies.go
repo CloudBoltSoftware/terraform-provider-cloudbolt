@@ -17,7 +17,7 @@ import (
 
 func DataSourceModulePolicy() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIPAMPolicyRead,
+		ReadContext: dataSourceModulePolicyRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
