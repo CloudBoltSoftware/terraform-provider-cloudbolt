@@ -34,7 +34,7 @@ data "cloudbolt_1f_naming_policy" "naming_policy" {
 
 // Resource for Naming
 resource "cloudbolt_1f_naming" "my_name" {
-  naming_policy_id        = data.onefuse_naming_policy.naming_policy.id      // Refers to Data Source to get Policy ID
+  naming_policy_id        = data.cloudbolt_1f_naming_policy.naming_policy.id      // Refers to Data Source to get Policy ID
   workspace_id            = ""
   template_properties     = var.template_properties
   dns_suffix              = "example.com"

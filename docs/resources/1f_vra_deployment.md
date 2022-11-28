@@ -38,10 +38,7 @@ resource "cloudbolt_1f_vra_deployment" "my_vra_deployment" {
   workspace_url       = var.workspace_url
   template_properties = var.template_properties
   deployment_name     = "tf_vra_deployment"
-  timeouts {
-    create = "20m"
-    delete = "20m"
-  }
+  request_timeout     = 20
 }
 ```
 
