@@ -9,6 +9,7 @@ import (
 
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
 	"github.com/cloudboltsoftware/terraform-provider-cloudbolt/internal/service/cmp"
+	"github.com/cloudboltsoftware/terraform-provider-cloudbolt/internal/service/onefuse"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -70,15 +71,37 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"cloudbolt_group_ref":            cmp.DataSourceCloudBoltGroup(),
-			"cloudbolt_blueprint_ref":        cmp.DataSourceCloudBoltBlueprint(),
-			"cloudbolt_environment_ref":      cmp.DataSourceCloudBoltEnvironment(),
-			"cloudbolt_osbuild_ref":          cmp.DataSourceCloudBoltOSBuild(),
-			"cloudbolt_resource_handler_ref": cmp.DataSourceCloudBoltResourceHandler(),
+			"cloudbolt_group_ref":                 cmp.DataSourceCloudBoltGroup(),
+			"cloudbolt_blueprint_ref":             cmp.DataSourceCloudBoltBlueprint(),
+			"cloudbolt_environment_ref":           cmp.DataSourceCloudBoltEnvironment(),
+			"cloudbolt_osbuild_ref":               cmp.DataSourceCloudBoltOSBuild(),
+			"cloudbolt_resource_handler_ref":      cmp.DataSourceCloudBoltResourceHandler(),
+			"cloudbolt_1f_ad_policy":              onefuse.DataSourceADPolicy(),
+			"cloudbolt_1f_ansible_tower_policy":   onefuse.DataSourceAnsibleTowerPolicy(),
+			"cloudbolt_1f_dns_policy":             onefuse.DataSourceDNSPolicy(),
+			"cloudbolt_1f_ipam_policy":            onefuse.DataSourceIPAMPolicy(),
+			"cloudbolt_1f_module_policy":          onefuse.DataSourceModulePolicy(),
+			"cloudbolt_1f_naming_policy":          onefuse.DataSourceNamingPolicy(),
+			"cloudbolt_1f_scripting_policy":       onefuse.DataSourceScriptingPolicy(),
+			"cloudbolt_1f_servicenow_cmdb_policy": onefuse.DataSourceServiceNowCMDBPolicy(),
+			"cloudbolt_1f_vra_policy":             onefuse.DataSourceVraPolicy(),
+			"cloudbolt_1f_rendered_template":      onefuse.DataSourceRenderedTemplate(),
+			"cloudbolt_1f_static_property_set":    onefuse.DataSourceStaticPropertySet(),
+			"cloudbolt_1f_microsoft_endpoint":     onefuse.DataSourceMicrosoftEndpoint(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cloudbolt_bp_instance": cmp.ResourceBPInstance(),
+			"cloudbolt_bp_instance":                      cmp.ResourceBPInstance(),
+			"cloudbolt_1f_module_deployment":             onefuse.ResourceModuleDeployment(),
+			"cloudbolt_1f_ansible_tower_deployment":      onefuse.ResourceAnsibleTowerDeployment(),
+			"cloudbolt_1f_dns_record":                    onefuse.ResourceDNSReservation(),
+			"cloudbolt_1f_ipam_record":                   onefuse.ResourceIPAMReservation(),
+			"cloudbolt_1f_naming":                        onefuse.ResourceCustomNaming(),
+			"cloudbolt_1f_microsoft_ad_policy":           onefuse.ResourceMicrosoftADPolicy(),
+			"cloudbolt_1f_microsoft_ad_computer_account": onefuse.ResourceMicrosoftADComputerAccount(),
+			"cloudbolt_1f_scripting_deployment":          onefuse.ResourceScriptingDeployment(),
+			"cloudbolt_1f_vra_deployment":                onefuse.ResourceVraDeployment(),
+			"cloudbolt_1f_servicenow_cmdb_deployment":    onefuse.ResourceServicenowCMDBDeployment(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
@@ -128,6 +151,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		d.Get("cb_domain").(string),
 		httpClient,
 	)
+
+	_, err := apiClient.Authenticate()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
 
 	return apiClient, diags
 }
