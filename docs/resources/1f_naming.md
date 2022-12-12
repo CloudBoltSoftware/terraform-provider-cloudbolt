@@ -53,9 +53,12 @@ resource "cloudbolt_1f_naming" "my_name" {
 - `custom_name_id` (Number)
 - `dns_suffix` (String) DNS Suffix to append to the Hostname.
 - `id` (String) The ID of this resource.
-- `name` (String)
 - `request_timeout` (Number) Timeout in minutes, Default (30)
 - `template_properties` (Map of String) Additional properties that are referenced within the Policy.
 - `workspace_id` (String) OneFuse Workspace URL path.
+
+### Read-Only
+
+- `name` (String)
 
 
