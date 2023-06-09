@@ -2,6 +2,7 @@ package cmp
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -480,6 +481,67 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	instanceType := d.Get("instance_type").(string)
+	if instanceType != "Resource" {
+		return resourceBPInstanceRead(ctx, d, m)
+	}
+
+	requestTimeout := d.Get("request_timeout").(int)
+	if d.HasChange("deployment_item") || d.HasChange("deployment_item") {
+		apiClient := m.(*cbclient.CloudBoltClient)
+		actionPath, geterr := getResourceActionPath(apiClient, d.Id(), "Terraform Provider Update")
+		if geterr != nil {
+			return diag.FromErr(geterr)
+		}
+
+		if actionPath == "" {
+			return resourceBPInstanceRead(ctx, d, m)
+		}
+
+		tfConfigParams := make(map[string]interface{}, 0)
+		bpItemList := d.Get("deployment_item").(*schema.Set).List()
+		bpParams := normalizeParameters(d.Get("parameters").(map[string]interface{}))
+
+		if bpParams != nil {
+			tfConfigParams["parameters"] = bpParams
+		}
+
+		for _, v := range bpItemList {
+			m := v.(map[string]interface{})
+			itemParams := normalizeParameters(m["parameters"].(map[string]interface{}))
+			tfConfigParams[m["name"].(string)] = itemParams
+		}
+
+		parametersJSON, jsonerr := json.Marshal(tfConfigParams)
+		if jsonerr != nil {
+			fmt.Println(jsonerr)
+		}
+
+		fmt.Println(string(parametersJSON))
+
+		parameters := map[string]interface{}{
+			"tf_config_parameters": string(parametersJSON),
+		}
+
+		job, upderr := apiClient.SubmitAction(actionPath, d.Id(), parameters)
+		if upderr != nil {
+			return diag.FromErr(upderr)
+		}
+
+		stateChangeConf := resource.StateChangeConf{
+			Delay:   10 * time.Second,
+			Timeout: time.Duration(requestTimeout) * time.Minute,
+			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
+			Target:  []string{"SUCCESS"},
+			Refresh: JobStateRefreshFunc(apiClient, job.Links.Self.Href),
+		}
+
+		_, err := stateChangeConf.WaitForState()
+		if err != nil {
+			return diag.Errorf("Error waiting for Job (%s) to complete: %s", job.Links.Self.Href, err)
+		}
+	}
+
 	return resourceBPInstanceRead(ctx, d, m)
 }
 
@@ -489,24 +551,16 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 
 	requestTimeout := d.Get("request_timeout").(int)
 	if instanceType == "Resource" {
-		res, err := apiClient.GetResource(d.Id())
+		delActionPath, err := getResourceActionPath(apiClient, d.Id(), "Delete")
 		if err != nil {
 			return diag.FromErr(err)
-		}
-
-		var delActionPath string
-		for _, v := range res.Links.Actions {
-			if v.Title == "Delete" {
-				delActionPath = v.Href
-				break
-			}
 		}
 
 		if delActionPath == "" {
 			return diag.Errorf("Error deleting resource (%s).", d.Id())
 		}
 
-		job, delerr := apiClient.SubmitAction(delActionPath, res.Links.Self.Href)
+		job, delerr := apiClient.SubmitAction(delActionPath, d.Id(), nil)
 		if delerr != nil {
 			return diag.FromErr(delerr)
 		}
@@ -583,6 +637,23 @@ func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) re
 
 		return job, job.Status, nil
 	}
+}
+
+func getResourceActionPath(apiClient *cbclient.CloudBoltClient, resourcePath string, resourceActionName string) (string, error) {
+	var actionPath string
+	res, err := apiClient.GetResource(resourcePath)
+	if err != nil {
+		return actionPath, err
+	}
+
+	for _, v := range res.Links.Actions {
+		if v.Title == resourceActionName {
+			actionPath = v.Href
+			break
+		}
+	}
+
+	return actionPath, nil
 }
 
 func normalizeParameters(params map[string]interface{}) map[string]interface{} {
