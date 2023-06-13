@@ -487,7 +487,7 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	requestTimeout := d.Get("request_timeout").(int)
-	if d.HasChange("deployment_item") || d.HasChange("deployment_item") {
+	if d.HasChange("parameters") || d.HasChange("deployment_item") {
 		apiClient := m.(*cbclient.CloudBoltClient)
 		actionPath, geterr := getResourceActionPath(apiClient, d.Id(), "Terraform Provider Update")
 		if geterr != nil {
