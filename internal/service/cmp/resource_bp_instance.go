@@ -481,9 +481,15 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+
 	instanceType := d.Get("instance_type").(string)
 	if instanceType != "Resource" {
-		return resourceBPInstanceRead(ctx, d, m)
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "The CloudBolt provider does not support Terraform config updates for Servers.",
+		})
+		return diags
 	}
 
 	requestTimeout := d.Get("request_timeout").(int)
@@ -495,7 +501,11 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		if actionPath == "" {
-			return resourceBPInstanceRead(ctx, d, m)
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "CloudBolt blueprint does not have a management action named \"Terraform Provider Update\", this action is required to apply terraform configuration changes.",
+			})
+			return diags
 		}
 
 		tfConfigParams := make(map[string]interface{}, 0)
