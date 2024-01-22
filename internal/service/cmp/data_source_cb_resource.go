@@ -31,7 +31,7 @@ func DataSourceCloudBoltResource() *schema.Resource {
 			"create_date": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Date the was created in CloudBolt",
+				Description: "Date the CloudBolt Resource was created",
 			},
 			"status": {
 				Type:        schema.TypeString,

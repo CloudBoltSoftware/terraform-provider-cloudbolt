@@ -8,7 +8,7 @@ description: |-
 
 # cloudbolt_server_ref (Data Source)
 
-Use this data source to retreive reference information for a CloudBolt Server ID or API v3 URL path.
+Use this data source to retreive reference information for a CloudBolt Server by ID or API URL path.
 
 ## Example Usage
 ```hcl

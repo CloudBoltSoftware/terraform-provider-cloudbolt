@@ -8,7 +8,7 @@ description: |-
 
 # cloudbolt_resource_ref (Data Source)
 
-Use this data source to retreive reference information for a CloudBolt Resource ID or API v3 URL path.
+Use this data source to retreive reference information for a CloudBolt Resource by ID or API URL path.
 
 ## Example Usage
 ```hcl
@@ -26,12 +26,12 @@ data "cloudbolt_server_ref" "resource_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt OS Build, required if "name" not provided
+- `id` (String) The global id of a CloudBolt Resource, required if "url_path" not provided
 - `url_path` (String) The relative API URL path for the CloudBolt Resource, required if "id" not provided
 
 ### Read-Only
 
 - `name` (String) The name of a CloudBolt Resource
-- `create_date` (String) Date the was created
+- `create_date` (String) Date the CloudBolt Resource was created
 - `status` (String) CloudBolt Resource Status
-- `attributes` (Map of String) CloudBolt Rsource attributes
+- `attributes` (Map of String) CloudBolt Resource attributes
