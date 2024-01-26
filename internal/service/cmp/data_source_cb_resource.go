@@ -16,17 +16,17 @@ func DataSourceCloudBoltResource() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt Resource, required if \"name\" not provided",
+				Description: "The global id of a CloudBolt Resource, required if \"name\" or \"url_path is not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The relative API URL path for the CloudBolt Resource.",
+				Description: "The relative API URL path for the CloudBolt Resource, required if \"id\" or \"name\" is not provided",
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The name of a CloudBolt Resource, required if \"id\" not provided",
+				Optional:    true,
+				Description: "The name of a CloudBolt Resource, required if \"id\" or \"url_path\" is not provided",
 			},
 			"create_date": {
 				Type:        schema.TypeString,
@@ -52,17 +52,20 @@ func DataSourceCloudBoltResource() *schema.Resource {
 
 func dataSourceCloudBoltResourceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
-	urlPath := d.Get("url_path").(string)
 	id := d.Get("id").(string)
+	name := d.Get("name").(string)
+	urlPath := d.Get("url_path").(string)
 
-	if id == "" && urlPath == "" {
-		return diag.Errorf("Either id or url_path is required")
+	if id == "" && name == "" && urlPath == "" {
+		return diag.Errorf("Either id, name, or url_path is required")
 	}
 
 	var resource *cbclient.CloudBoltResource
 	var err error
 	if urlPath != "" {
 		resource, err = apiClient.GetResource(urlPath)
+	} else if name != "" {
+		resource, err = apiClient.GetResourceByName(name)
 	} else {
 		resource, err = apiClient.GetResourceById(id)
 	}

@@ -26,12 +26,12 @@ data "cloudbolt_server_ref" "resource_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt Resource, required if "url_path" not provided
-- `url_path` (String) The relative API URL path for the CloudBolt Resource, required if "id" not provided
+- `id` (String) The global id of a CloudBolt Resource, required if "name" or "url_path" is not provided
+- `name` (String) The name of a CloudBolt Resource, required if "id" or "url_path" is not provided"
+- `url_path` (String) The relative API URL path for the CloudBolt Resource, required if "id" or "name" is not provided
 
 ### Read-Only
 
-- `name` (String) The name of a CloudBolt Resource
 - `create_date` (String) Date the CloudBolt Resource was created
 - `status` (String) CloudBolt Resource Status
 - `attributes` (Map of String) CloudBolt Resource attributes

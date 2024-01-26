@@ -26,12 +26,12 @@ data "cloudbolt_server_ref" "server_id" {
 
 ### Optional
 
-- `id` (String) The global id of a CloudBolt Server, required if "url_path" not provided
-- `url_path` (String) The relative API URL path for the CloudBolt Server, required if "id" not provided
+- `id` (String) The global id of a CloudBolt Server, required if "hostname" or "url_path" is not provided
+- `hostname` (String) The hostname of the CloudBolt Server, required if "id" or "url_path" is not provided
+- `url_path` (String) The relative API URL path for the CloudBolt Server, required if "id" or "hostname" is not provided
 
 ### Read-Only
 
-- `hostname` (String) Server Hostname
 - `ip_address` (String) Server IP Address
 - `status` (String) CloudBolt Server Status
 - `mac` (String) Server MAC Address

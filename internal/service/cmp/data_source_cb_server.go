@@ -16,17 +16,17 @@ func DataSourceCloudBoltServer() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The global id of a CloudBolt Server, required if \"url_path\" not provided",
+				Description: "The global id of a CloudBolt Server, required if \"hostname\" or \"url_path\" is not provided",
 			},
 			"url_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The relative API URL path for the CloudBolt Server, required if \"id\" not provided",
+				Description: "The relative API URL path for the CloudBolt Server, required if \"id\" or \"hostname\" is not provided",
 			},
 			"hostname": {
 				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Server Hostname",
+				Optional:    true,
+				Description: "The hostname of the CloudBolt Server, required if \"id\" or \"url_path\" is not provided",
 			},
 			"ip_address": {
 				Type:        schema.TypeString,
@@ -152,15 +152,18 @@ func DataSourceCloudBoltServer() *schema.Resource {
 func dataSourceCloudBoltServerRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
 	serverPath := d.Get("url_path").(string)
+	hostname := d.Get("hostname").(string)
 	id := d.Get("id").(string)
 
-	if id == "" && serverPath == "" {
-		return diag.Errorf("Either name or id is required")
+	if id == "" && hostname == "" && serverPath == "" {
+		return diag.Errorf("Either id, hostname, or url_path is required")
 	}
 	var server *cbclient.CloudBoltServer
 	var err error
 	if serverPath != "" {
 		server, err = apiClient.GetServer(serverPath)
+	} else if hostname != "" {
+		server, err = apiClient.GetServerByHostname(hostname)
 	} else {
 		server, err = apiClient.GetServerById(id)
 	}
