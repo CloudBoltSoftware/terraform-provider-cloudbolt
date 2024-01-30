@@ -177,7 +177,7 @@ func dataSourceCloudBoltServerRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	d.SetId(server.ID)
-	d.Set("url_path", server.Links.Self)
+	d.Set("url_path", server.Links.Self.Href)
 	d.Set("hostname", server.Hostname)
 	d.Set("ip_address", server.IP)
 	d.Set("status", server.Status)

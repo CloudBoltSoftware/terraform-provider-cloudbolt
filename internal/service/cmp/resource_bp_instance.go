@@ -360,7 +360,10 @@ func convertValuesToString(attributes map[string]interface{}) map[string]interfa
 	stringValues := make(map[string]interface{}, 0)
 
 	for k, v := range attributes {
-		stringValues[k] = convertValueToString(v)
+		stringValue := convertValueToString(v)
+		if stringValue != "" {
+			stringValues[k] = convertValueToString(v)
+		}
 	}
 
 	return stringValues
