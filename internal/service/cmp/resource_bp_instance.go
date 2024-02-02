@@ -498,7 +498,7 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 	requestTimeout := d.Get("request_timeout").(int)
 	if d.HasChange("parameters") || d.HasChange("deployment_item") {
 		apiClient := m.(*cbclient.CloudBoltClient)
-		actionPath, geterr := getResourceActionPath(apiClient, d.Id(), "Terraform Provider Update")
+		actionPath, geterr := getResourceActionPath(apiClient, d.Id(), "Terraform Provider Update", true)
 		if geterr != nil {
 			return diag.FromErr(geterr)
 		}
@@ -564,7 +564,7 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 
 	requestTimeout := d.Get("request_timeout").(int)
 	if instanceType == "Resource" {
-		delActionPath, err := getResourceActionPath(apiClient, d.Id(), "Delete")
+		delActionPath, err := getResourceActionPath(apiClient, d.Id(), "Delete", false)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -652,7 +652,7 @@ func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) re
 	}
 }
 
-func getResourceActionPath(apiClient *cbclient.CloudBoltClient, resourcePath string, resourceActionName string) (string, error) {
+func getResourceActionPath(apiClient *cbclient.CloudBoltClient, resourcePath string, resourceActionName string, prefixFilter bool) (string, error) {
 	var actionPath string
 	res, err := apiClient.GetResource(resourcePath)
 	if err != nil {
@@ -660,9 +660,16 @@ func getResourceActionPath(apiClient *cbclient.CloudBoltClient, resourcePath str
 	}
 
 	for _, v := range res.Links.Actions {
-		if v.Title == resourceActionName {
-			actionPath = v.Href
-			break
+		if prefixFilter {
+			if strings.HasPrefix(v.Title, resourceActionName) {
+				actionPath = v.Href
+				break
+			}
+		} else {
+			if v.Title == resourceActionName {
+				actionPath = v.Href
+				break
+			}
 		}
 	}
 
