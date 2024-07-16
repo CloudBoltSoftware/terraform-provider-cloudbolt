@@ -16,11 +16,11 @@ data "cloudbolt_resource_ref" "resource" {
     url_path = "/api/v3/cmp/resources/RSC-no9aztne/"
 }
 
-data "cloudbolt_server_ref" "resource_id" {
+data "cloudbolt_resource_ref" "resource_id" {
     id = "RSC-no9aztne"
 }
 
-data "cloudbolt_server_ref" "resource_name" {
+data "cloudbolt_resource_ref" "resource_name" {
     name = "My Resource"
 }
 ```
