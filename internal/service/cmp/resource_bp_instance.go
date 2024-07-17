@@ -1,6 +1,7 @@
 package cmp
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -350,6 +351,20 @@ func convertValueToString(value interface{}) string {
 		strValue, ok := value.(string)
 		if ok {
 			stringValue = strValue
+		}
+	}
+
+	if stringValue == "" {
+		interfaceArrValue, ok := value.([]interface{})
+		if ok {
+			var buffer bytes.Buffer
+			for i, v := range interfaceArrValue {
+				if i != 0 {
+					buffer.WriteString(",")
+				}
+				buffer.WriteString(convertValueToString(v))
+			}
+			stringValue = buffer.String()
 		}
 	}
 
