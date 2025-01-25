@@ -551,22 +551,46 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 			"tf_config_parameters": string(parametersJSON),
 		}
 
-		job, upderr := apiClient.SubmitAction(actionPath, d.Id(), parameters)
+		runActionResult, upderr := apiClient.SubmitAction(actionPath, d.Id(), parameters)
 		if upderr != nil {
 			return diag.FromErr(upderr)
 		}
 
-		stateChangeConf := resource.StateChangeConf{
-			Delay:   10 * time.Second,
-			Timeout: time.Duration(requestTimeout) * time.Minute,
-			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
-			Target:  []string{"SUCCESS"},
-			Refresh: JobStateRefreshFunc(apiClient, job.Links.Self.Href),
-		}
+		if runActionResult.Results.Status != "" {
+			if runActionResult.Results.Status != "SUCCESS" {
+				var message string
+				if runActionResult.Results.ErrorMessage != "" {
+					message = runActionResult.Results.ErrorMessage
+				} else {
+					message = runActionResult.Results.OutputMessage
+				}
 
-		_, err := stateChangeConf.WaitForState()
-		if err != nil {
-			return diag.Errorf("Error waiting for Job (%s) to complete: %s", job.Links.Self.Href, err)
+				return diag.Errorf("Action Failed Status: %s Error: %s", runActionResult.Results.Status, message)
+			}
+		} else {
+			stateChangeConf := resource.StateChangeConf{
+				Delay:   10 * time.Second,
+				Timeout: time.Duration(requestTimeout) * time.Minute,
+				Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
+				Target:  []string{"SUCCESS"},
+			}
+
+			if runActionResult.Results.Job.Links.Self.Href != "" {
+				stateChangeConf.Pending = []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"}
+				stateChangeConf.Refresh = JobStateRefreshFunc(apiClient, runActionResult.Results.Job.Links.Self.Href)
+			} else if runActionResult.Results.Order.Links.Self.Href != "" {
+				stateChangeConf.Pending = []string{"ACTIVE"}
+				stateChangeConf.Refresh = OrderStateRefreshFunc(apiClient, runActionResult.Results.Order.ID)
+			}
+
+			_, err := stateChangeConf.WaitForState()
+			if err != nil && runActionResult.Results.Job.Links.Self.Href != "" {
+				return diag.Errorf("Error waiting for Job (%s) to complete: %s", runActionResult.Results.Job.Links.Self.Href, err)
+			}
+
+			if err != nil && runActionResult.Results.Order.Links.Self.Href != "" {
+				return diag.Errorf("Error waiting for Order (%s) to complete: %s", runActionResult.Results.Order.Links.Self.Href, err)
+			}
 		}
 	}
 
@@ -588,22 +612,44 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 			return diag.Errorf("Error deleting resource (%s).", d.Id())
 		}
 
-		job, delerr := apiClient.SubmitAction(delActionPath, d.Id(), nil)
+		runActionResult, delerr := apiClient.SubmitAction(delActionPath, d.Id(), nil)
 		if delerr != nil {
 			return diag.FromErr(delerr)
 		}
 
-		stateChangeConf := resource.StateChangeConf{
-			Delay:   10 * time.Second,
-			Timeout: time.Duration(requestTimeout) * time.Minute,
-			Pending: []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"},
-			Target:  []string{"SUCCESS"},
-			Refresh: JobStateRefreshFunc(apiClient, job.Links.Self.Href),
-		}
+		if runActionResult.Results.Status != "" {
+			if runActionResult.Results.Status != "SUCCESS" {
+				var message string
+				if runActionResult.Results.ErrorMessage != "" {
+					message = runActionResult.Results.ErrorMessage
+				} else {
+					message = runActionResult.Results.OutputMessage
+				}
 
-		_, err = stateChangeConf.WaitForState()
-		if err != nil {
-			return diag.Errorf("Error waiting for Job (%s) to complete: %s", job.Links.Self.Href, err)
+				return diag.Errorf("Action Failed Status: %s Error: %s", runActionResult.Results.Status, message)
+			}
+		} else {
+			stateChangeConf := resource.StateChangeConf{
+				Delay:   10 * time.Second,
+				Timeout: time.Duration(requestTimeout) * time.Minute,
+				Target:  []string{"SUCCESS"},
+			}
+			if runActionResult.Results.Job.Links.Self.Href != "" {
+				stateChangeConf.Pending = []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"}
+				stateChangeConf.Refresh = JobStateRefreshFunc(apiClient, runActionResult.Results.Job.Links.Self.Href)
+			} else if runActionResult.Results.Order.Links.Self.Href != "" {
+				stateChangeConf.Pending = []string{"ACTIVE"}
+				stateChangeConf.Refresh = OrderStateRefreshFunc(apiClient, runActionResult.Results.Order.ID)
+			}
+
+			_, err = stateChangeConf.WaitForState()
+			if err != nil && runActionResult.Results.Job.Links.Self.Href != "" {
+				return diag.Errorf("Error waiting for Job (%s) to complete: %s", runActionResult.Results.Job.Links.Self.Href, err)
+			}
+
+			if err != nil && runActionResult.Results.Order.Links.Self.Href != "" {
+				return diag.Errorf("Error waiting for Order (%s) to complete: %s", runActionResult.Results.Order.Links.Self.Href, err)
+			}
 		}
 	} else {
 		serverIds := strings.Split(d.Id(), "_")
