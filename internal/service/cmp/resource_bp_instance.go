@@ -470,9 +470,7 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 			servers = append(servers, server)
 		}
 
-		if servers != nil {
-			d.Set("servers", servers)
-		}
+		d.Set("servers", servers)
 
 		resAttributes, _ := parseAttributes(res.Attributes)
 		d.Set("attributes", resAttributes)
