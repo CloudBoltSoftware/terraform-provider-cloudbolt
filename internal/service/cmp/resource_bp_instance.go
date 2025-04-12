@@ -384,6 +384,77 @@ func convertValuesToString(attributes map[string]interface{}) map[string]interfa
 	return stringValues
 }
 
+func getParameters(d *schema.ResourceData) (map[string]interface{}, bool) {
+	rawParams, ok := d.GetOk("parameters")
+	if !ok {
+		return nil, false
+	}
+
+	params, ok := rawParams.(map[string]interface{})
+
+	return params, ok
+}
+
+func setParameters(attributes map[string]interface{}, currentParameters map[string]interface{}) map[string]interface{} {
+	parameters := make(map[string]interface{})
+	for k, v := range currentParameters {
+		if attributeValue, ok := attributes[k]; ok {
+			parameters[k] = attributeValue
+		} else {
+			parameters[k] = convertValueToString(v)
+		}
+	}
+
+	return parameters
+}
+
+func getDeploymentItems(d *schema.ResourceData) ([]map[string]interface{}, bool) {
+	rawDepItems, ok := d.GetOk("deployment_item")
+	if !ok {
+		return nil, false
+	}
+
+	depSet, ok := rawDepItems.(*schema.Set)
+	if !ok {
+		return nil, false
+	}
+
+	var deploymentItems []map[string]interface{}
+	for _, item := range depSet.List() {
+		if itemMap, ok := item.(map[string]interface{}); ok {
+			deploymentItems = append(deploymentItems, itemMap)
+		}
+	}
+
+	return deploymentItems, true
+}
+
+func setDeploymentItems(attributes map[string]interface{}, currentDepItems []map[string]interface{}) []interface{} {
+	var depItems []interface{}
+
+	for _, currentDepItem := range currentDepItems {
+		depItem := make(map[string]interface{})
+
+		// Handle known fields, optionally override from `attributes`
+		if name, ok := currentDepItem["name"].(string); ok {
+			depItem["name"] = name
+		}
+		if env, ok := currentDepItem["environment"].(string); ok {
+			depItem["environment"] = env
+		}
+		if osbuild, ok := currentDepItem["osbuild"].(string); ok {
+			depItem["osbuild"] = osbuild
+		}
+		if params, ok := currentDepItem["parameters"].(map[string]interface{}); ok {
+			depItem["parameters"] = setParameters(attributes, params)
+		}
+
+		depItems = append(depItems, depItem)
+	}
+
+	return depItems
+}
+
 func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) {
 	server := map[string]interface{}{
 		"hostname":                svr.Hostname,
@@ -452,6 +523,7 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
+	allAttributes := make(map[string]interface{})
 
 	if instanceType == "Resource" {
 		res, err := apiClient.GetResource(d.Id())
@@ -468,13 +540,27 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 
 			server, _ := parseServer(svr)
 			servers = append(servers, server)
+
+			if attributes, ok := server["attributes"].(map[string]interface{}); ok {
+				for k, v := range attributes {
+					allAttributes[k] = v
+				}
+			}
+
+			if techSpecificAttributes, ok := server["tech_specific_attributes"].(map[string]interface{}); ok {
+				for k, v := range techSpecificAttributes {
+					allAttributes[k] = v
+				}
+			}
 		}
 
-		if servers != nil {
-			d.Set("servers", servers)
-		}
+		d.Set("servers", servers)
 
 		resAttributes, _ := parseAttributes(res.Attributes)
+		for k, v := range resAttributes {
+			allAttributes[k] = v
+		}
+
 		d.Set("attributes", resAttributes)
 	} else {
 		serverIds := strings.Split(d.Id(), "_")
@@ -488,11 +574,33 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 
 			server, _ := parseServer(svr)
 			servers = append(servers, server)
+
+			if attributes, ok := server["attributes"].(map[string]interface{}); ok {
+				for k, v := range attributes {
+					allAttributes[k] = v
+				}
+			}
+
+			if techSpecificAttributes, ok := server["tech_specific_attributes"].(map[string]interface{}); ok {
+				for k, v := range techSpecificAttributes {
+					allAttributes[k] = v
+				}
+			}
 		}
 
 		if servers != nil {
 			d.Set("servers", servers)
 		}
+	}
+
+	if parameters, ok := getParameters(d); ok {
+		updatedParameters := setParameters(allAttributes, parameters)
+		d.Set("parameters", updatedParameters)
+	}
+
+	if depItems, ok := getDeploymentItems(d); ok {
+		updatedDepItems := setDeploymentItems(allAttributes, depItems)
+		d.Set("deployment_item", updatedDepItems)
 	}
 
 	return nil
