@@ -6,10 +6,11 @@ TF_EXAMPLES=$(shell find examples -not -path '*/\.*' -regex 'examples/.*' -type 
 HOSTNAME=registry.terraform.io
 NAMESPACE=CloudBoltSoftware
 NAME=cloudbolt
-VERSION=1.1.2-rc.1
+VERSION=1.1.3-rc.1
 BINARY=terraform-provider-${NAME}
+OS_ARCH=darwin_arm64
 TF_PLUGINS_DIR=$(HOME)/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-OS_ARCH=darwin_amd64
+
 
 .PHONY : install
 install: build
