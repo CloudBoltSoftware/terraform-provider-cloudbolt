@@ -541,16 +541,24 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 			server, _ := parseServer(svr)
 			servers = append(servers, server)
 
-			if attributes, ok := server["attributes"].(map[string]interface{}); ok {
-				for k, v := range attributes {
-					allAttributes[k] = v
+			if len(res.Links.Servers) == 1 {
+				if attributes, ok := server["attributes"].(map[string]interface{}); ok {
+					for k, v := range attributes {
+						allAttributes[k] = v
+					}
 				}
-			}
 
-			if techSpecificAttributes, ok := server["tech_specific_attributes"].(map[string]interface{}); ok {
-				for k, v := range techSpecificAttributes {
-					allAttributes[k] = v
+				if techSpecificAttributes, ok := server["tech_specific_attributes"].(map[string]interface{}); ok {
+					for k, v := range techSpecificAttributes {
+						allAttributes[k] = v
+					}
 				}
+				allAttributes["cpu_cnt"] = convertValueToString(svr.CPUCount)
+
+				mem_size := convertValueToString(svr.MemorySizeGB)
+				mem_size = strings.TrimRight(mem_size, "0")
+				mem_size = strings.TrimRight(mem_size, ".")
+				allAttributes["mem_size"] = mem_size
 			}
 		}
 
@@ -575,16 +583,25 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 			server, _ := parseServer(svr)
 			servers = append(servers, server)
 
-			if attributes, ok := server["attributes"].(map[string]interface{}); ok {
-				for k, v := range attributes {
-					allAttributes[k] = v
+			if len(serverIds) == 1 {
+				if attributes, ok := server["attributes"].(map[string]interface{}); ok {
+					for k, v := range attributes {
+						allAttributes[k] = v
+					}
 				}
-			}
 
-			if techSpecificAttributes, ok := server["tech_specific_attributes"].(map[string]interface{}); ok {
-				for k, v := range techSpecificAttributes {
-					allAttributes[k] = v
+				if techSpecificAttributes, ok := server["tech_specific_attributes"].(map[string]interface{}); ok {
+					for k, v := range techSpecificAttributes {
+						allAttributes[k] = v
+					}
 				}
+
+				allAttributes["cpu_cnt"] = convertValueToString(svr.CPUCount)
+
+				mem_size := convertValueToString(svr.MemorySizeGB)
+				mem_size = strings.TrimRight(mem_size, "0")
+				mem_size = strings.TrimRight(mem_size, ".")
+				allAttributes["mem_size"] = mem_size
 			}
 		}
 
