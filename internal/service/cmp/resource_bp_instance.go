@@ -229,22 +229,7 @@ func ResourceBPInstance() *schema.Resource {
 
 func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf(
-				"[ERROR] [provider.cloudbolt] panic: %v\n%s",
-				r,
-				debug.Stack(),
-			)
-
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "CloudBolt provider crashed",
-				Detail:   fmt.Sprintf("panic: %v", r),
-			})
-		}
-	}()
+	defer withPanicRecovery(&diags, "Create")
 
 	apiClient := m.(*cbclient.CloudBoltClient)
 
@@ -548,22 +533,7 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 
 func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf(
-				"[ERROR] [provider.cloudbolt] panic in Read: %v\n%s",
-				r,
-				debug.Stack(),
-			)
-
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "CloudBolt provider crashed during read",
-				Detail:   fmt.Sprintf("panic: %v", r),
-			})
-		}
-	}()
+	defer withPanicRecovery(&diags, "Read")
 
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
@@ -579,7 +549,7 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 		for _, s := range res.Links.Servers {
 			svr, svrerr := apiClient.GetServer(s.Href)
 			if svrerr != nil {
-				return diag.Errorf("Error getting Servers for Resource: %s", svrerr)
+				return diag.Errorf("Error getting Servers for Resource: %s", svrerr.Error())
 			}
 
 			server, _ := parseServer(svr)
@@ -621,7 +591,7 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 		for _, serverId := range serverIds {
 			svr, svrerr := apiClient.GetServerById(serverId)
 			if svrerr != nil {
-				return diag.Errorf("Error getting Server: %s", svrerr)
+				return diag.Errorf("Error getting Server: %s", svrerr.Error())
 			}
 
 			server, _ := parseServer(svr)
@@ -669,6 +639,7 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 
 func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+	defer withPanicRecovery(&diags, "Update")
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -784,22 +755,7 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf(
-				"[ERROR] [provider.cloudbolt] panic in Delete: %v\n%s",
-				r,
-				debug.Stack(),
-			)
-
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "CloudBolt provider crashed during delete",
-				Detail:   fmt.Sprintf("panic: %v", r),
-			})
-		}
-	}()
+	defer withPanicRecovery(&diags, "Delete")
 
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
@@ -883,6 +839,26 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	return diags
+}
+
+func withPanicRecovery(
+	diags *diag.Diagnostics,
+	operation string,
+) {
+	if r := recover(); r != nil {
+		log.Printf(
+			"[ERROR] [provider.cloudbolt] panic in %s: %v\n%s",
+			operation,
+			r,
+			debug.Stack(),
+		)
+
+		*diags = append(*diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "CloudBolt provider crashed",
+			Detail:   fmt.Sprintf("panic during %s: %v", operation, r),
+		})
+	}
 }
 
 func OrderStateRefreshFunc(apiClient *cbclient.CloudBoltClient, orderId string) resource.StateRefreshFunc {
