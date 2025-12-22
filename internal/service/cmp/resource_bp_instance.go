@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"log"
+	"runtime/debug"
 
 	"github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -226,6 +228,24 @@ func ResourceBPInstance() *schema.Resource {
 }
 
 func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf(
+				"[ERROR] [provider.cloudbolt] panic: %v\n%s",
+				r,
+				debug.Stack(),
+			)
+
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "CloudBolt provider crashed",
+				Detail:   fmt.Sprintf("panic: %v", r),
+			})
+		}
+	}()
+
 	apiClient := m.(*cbclient.CloudBoltClient)
 
 	bpItems := make([]map[string]interface{}, 0)
@@ -311,7 +331,11 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 		d.SetId(strings.Join(servers, "_"))
 	}
 
-	return resourceBPInstanceRead(ctx, d, m)
+	// Populate Terraform state by reading the resource
+	readDiags := resourceBPInstanceRead(ctx, d, m)
+	diags = append(diags, readDiags...)
+
+	return diags
 }
 
 func parseAttributes(attributes []map[string]interface{}) (map[string]interface{}, error) {
@@ -358,12 +382,14 @@ func convertValueToString(value interface{}) string {
 		interfaceArrValue, ok := value.([]interface{})
 		if ok {
 			var buffer bytes.Buffer
+			buffer.WriteString("[")
 			for i, v := range interfaceArrValue {
 				if i != 0 {
-					buffer.WriteString(",")
+					buffer.WriteString("|")
 				}
 				buffer.WriteString(convertValueToString(v))
 			}
+			buffer.WriteString("]")
 			stringValue = buffer.String()
 		}
 	}
@@ -521,6 +547,24 @@ func parseServer(svr *cbclient.CloudBoltServer) (map[string]interface{}, error) 
 }
 
 func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf(
+				"[ERROR] [provider.cloudbolt] panic in Read: %v\n%s",
+				r,
+				debug.Stack(),
+			)
+
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "CloudBolt provider crashed during read",
+				Detail:   fmt.Sprintf("panic: %v", r),
+			})
+		}
+	}()
+
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
 	allAttributes := make(map[string]interface{})
@@ -620,11 +664,27 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 		d.Set("deployment_item", updatedDepItems)
 	}
 
-	return nil
+	return diags
 }
 
 func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf(
+				"[ERROR] [provider.cloudbolt] panic in Update: %v\n%s",
+				r,
+				debug.Stack(),
+			)
+
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "CloudBolt provider crashed during read",
+				Detail:   fmt.Sprintf("panic: %v", r),
+			})
+		}
+	}()
 
 	instanceType := d.Get("instance_type").(string)
 	if instanceType != "Resource" {
@@ -723,6 +783,24 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 }
 
 func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf(
+				"[ERROR] [provider.cloudbolt] panic in Delete: %v\n%s",
+				r,
+				debug.Stack(),
+			)
+
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "CloudBolt provider crashed during delete",
+				Detail:   fmt.Sprintf("panic: %v", r),
+			})
+		}
+	}()
+
 	apiClient := m.(*cbclient.CloudBoltClient)
 	instanceType := d.Get("instance_type").(string)
 
@@ -804,7 +882,7 @@ func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m int
 		}
 	}
 
-	return nil
+	return diags
 }
 
 func OrderStateRefreshFunc(apiClient *cbclient.CloudBoltClient, orderId string) resource.StateRefreshFunc {
@@ -866,7 +944,12 @@ func normalizeParameters(params map[string]interface{}) map[string]interface{} {
 	normalizedParams := make(map[string]interface{}, 0)
 
 	for k, v := range params {
-		value := v.(string)
+		value, ok := v.(string)
+		if !ok {
+			normalizedParams[k] = v
+			continue
+		}
+
 		if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
 			parameterValues := strings.Split(value[1:len(value)-1], "|")
 			normalizedParams[k] = parameterValues
