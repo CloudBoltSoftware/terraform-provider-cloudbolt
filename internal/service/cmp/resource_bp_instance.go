@@ -641,22 +641,6 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 	var diags diag.Diagnostics
 	defer withPanicRecovery(&diags, "Update")
 
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf(
-				"[ERROR] [provider.cloudbolt] panic in Update: %v\n%s",
-				r,
-				debug.Stack(),
-			)
-
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "CloudBolt provider crashed during read",
-				Detail:   fmt.Sprintf("panic: %v", r),
-			})
-		}
-	}()
-
 	instanceType := d.Get("instance_type").(string)
 	if instanceType != "Resource" {
 		diags = append(diags, diag.Diagnostic{
@@ -714,14 +698,39 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 		if runActionResult.Results.Status != "" {
 			if runActionResult.Results.Status != "SUCCESS" {
-				var message string
-				if runActionResult.Results.ErrorMessage != "" {
-					message = runActionResult.Results.ErrorMessage
-				} else {
-					message = runActionResult.Results.OutputMessage
+				var b strings.Builder
+
+				// First line (single line, status included)
+				fmt.Fprintf(
+					&b,
+					"Action failed (status=%s).\n\n",
+					runActionResult.Results.Status,
+				)
+
+				// Errors (multiline)
+				if strings.TrimSpace(runActionResult.Results.ErrorMessage) != "" {
+					b.WriteString("Errors:\n")
+					for _, line := range strings.Split(
+						strings.TrimRight(runActionResult.Results.ErrorMessage, "\n"),
+						"\n",
+					) {
+						fmt.Fprintf(&b, "  • %s\n", line)
+					}
+					b.WriteString("\n")
 				}
 
-				return diag.Errorf("Action Failed Status: %s Error: %s", runActionResult.Results.Status, message)
+				// Output (multiline)
+				if strings.TrimSpace(runActionResult.Results.OutputMessage) != "" {
+					b.WriteString("Output:\n")
+					for _, line := range strings.Split(
+						strings.TrimRight(runActionResult.Results.OutputMessage, "\n"),
+						"\n",
+					) {
+						fmt.Fprintf(&b, "  • %s\n", line)
+					}
+				}
+
+				return diag.Errorf(b.String())
 			}
 		} else {
 			stateChangeConf := resource.StateChangeConf{
@@ -731,12 +740,15 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 				Target:  []string{"SUCCESS"},
 			}
 
+			var runProcessType string
 			if runActionResult.Results.Job.Links.Self.Href != "" {
 				stateChangeConf.Pending = []string{"INIT", "QUEUED", "PENDING", "RUNNING", "TO_CANCEL"}
 				stateChangeConf.Refresh = JobStateRefreshFunc(apiClient, runActionResult.Results.Job.Links.Self.Href)
+				runProcessType = "job"
 			} else if runActionResult.Results.Order.Links.Self.Href != "" {
 				stateChangeConf.Pending = []string{"ACTIVE"}
 				stateChangeConf.Refresh = OrderStateRefreshFunc(apiClient, runActionResult.Results.Order.ID)
+				runProcessType = "order"
 			}
 
 			_, err := stateChangeConf.WaitForState()
@@ -747,10 +759,23 @@ func resourceBPInstanceUpdate(ctx context.Context, d *schema.ResourceData, m int
 			if err != nil && runActionResult.Results.Order.Links.Self.Href != "" {
 				return diag.Errorf("Error waiting for Order (%s) to complete: %s", runActionResult.Results.Order.Links.Self.Href, err)
 			}
+
+			if err != nil {
+				return diag.Errorf(
+					"Timed out after %d minutes waiting for %s to complete. Error: %s",
+					requestTimeout,
+					runProcessType,
+					err,
+				)
+			}
 		}
 	}
 
-	return resourceBPInstanceRead(ctx, d, m)
+	// Populate Terraform state by reading the resource
+	readDiags := resourceBPInstanceRead(ctx, d, m)
+	diags = append(diags, readDiags...)
+
+	return diags
 }
 
 func resourceBPInstanceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
@@ -870,7 +895,36 @@ func OrderStateRefreshFunc(apiClient *cbclient.CloudBoltClient, orderId string) 
 		}
 
 		if order.Status == "FAILURE" {
-			return nil, order.Status, fmt.Errorf("Order %s failed to reach target state.", orderId)
+			// return nil, order.Status, fmt.Errorf("Order %s failed to reach target state.", orderId)
+			status, err := apiClient.GetOrderStatus(orderId)
+			if err != nil {
+				return nil, "FAILURE", fmt.Errorf(
+					"Order %s failed, but status details could not be retrieved: %w",
+					orderId,
+					err,
+				)
+			}
+
+			var b strings.Builder
+
+			fmt.Fprintf(&b, "Order %s failed.\n\n", orderId)
+
+			if len(status.OutputMessages) > 0 {
+				b.WriteString("Outputs:\n")
+				for _, msg := range status.OutputMessages {
+					fmt.Fprintf(&b, "  • %s\n", msg)
+				}
+				b.WriteString("\n")
+			}
+
+			if len(status.ErrorMessages) > 0 {
+				b.WriteString("Errors:\n")
+				for _, msg := range status.ErrorMessages {
+					fmt.Fprintf(&b, "  • %s\n", msg)
+				}
+			}
+
+			return nil, order.Status, fmt.Errorf(b.String())
 		}
 
 		return order, order.Status, nil
@@ -885,7 +939,26 @@ func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) re
 		}
 
 		if job.Status == "FAILURE" || job.Status == "WARNING" || job.Status == "CANCELED" {
-			return nil, job.Status, fmt.Errorf("Job %s failed to reach target state.", jobPath)
+			var b strings.Builder
+
+			fmt.Fprintf(&b, "Job %s failed to reach target state.\n\n", job.ID)
+
+			if strings.TrimSpace(job.Errors) != "" {
+				b.WriteString("Errors:\n")
+				for _, line := range strings.Split(strings.TrimRight(job.Errors, "\n"), "\n") {
+					fmt.Fprintf(&b, "  • %s\n", line)
+				}
+				b.WriteString("\n")
+			}
+
+			if strings.TrimSpace(job.Output) != "" {
+				b.WriteString("Outputs:\n")
+				for _, line := range strings.Split(strings.TrimRight(job.Output, "\n"), "\n") {
+					fmt.Fprintf(&b, "  • %s\n", line)
+				}
+			}
+
+			return nil, job.Status, fmt.Errorf(b.String())
 		}
 
 		return job, job.Status, nil
