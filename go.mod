@@ -3,7 +3,7 @@ module github.com/cloudboltsoftware/terraform-provider-cloudbolt
 go 1.18
 
 require (
-	github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v1.1.1
+	github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient v1.1.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
 )
 
@@ -54,3 +54,5 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
+
+// replace github.com/cloudboltsoftware/cloudbolt-go-sdk/cbclient => ../cloudbolt-go-sdk/cbclient
