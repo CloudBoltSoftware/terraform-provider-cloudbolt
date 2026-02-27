@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -542,7 +543,17 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 	if instanceType == "Resource" {
 		res, err := apiClient.GetResource(d.Id())
 		if err != nil {
+			if errors.Is(err, cbclient.ErrNotFound) {
+				d.SetId("")
+				return diags
+			}
+
 			return diag.FromErr(err)
+		}
+
+		if res.Status == "HISTORICAL" {
+			d.SetId("")
+			return diags
 		}
 
 		var servers []map[string]interface{}
