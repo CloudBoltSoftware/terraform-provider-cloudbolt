@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func ResourceBPInstance() *schema.Resource {
@@ -556,8 +555,6 @@ func resourceBPInstanceRead(ctx context.Context, d *schema.ResourceData, m inter
 			d.SetId("")
 			return diags
 		}
-
-		tflog.Info(ctx, "Larry Test: Got here Read")
 
 		var servers []map[string]interface{}
 		for _, s := range res.Links.Servers {
