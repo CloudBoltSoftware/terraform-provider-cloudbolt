@@ -77,6 +77,7 @@ func Provider() *schema.Provider {
 			"cloudbolt_osbuild_ref":               cmp.DataSourceCloudBoltOSBuild(),
 			"cloudbolt_resource_handler_ref":      cmp.DataSourceCloudBoltResourceHandler(),
 			"cloudbolt_resource_ref":              cmp.DataSourceCloudBoltResource(),
+			"cloudbolt_resource_jobs_ref":         cmp.DataSourceCloudBoltResourceJobs(),
 			"cloudbolt_server_ref":                cmp.DataSourceCloudBoltServer(),
 			"cloudbolt_1f_ad_policy":              onefuse.DataSourceADPolicy(),
 			"cloudbolt_1f_ansible_tower_policy":   onefuse.DataSourceAnsibleTowerPolicy(),
