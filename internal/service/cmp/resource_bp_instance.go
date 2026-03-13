@@ -933,6 +933,14 @@ func OrderStateRefreshFunc(apiClient *cbclient.CloudBoltClient, orderId string) 
 				for _, msg := range status.ErrorMessages {
 					fmt.Fprintf(&b, "  • %s\n", msg)
 				}
+				b.WriteString("\n")
+			}
+
+			if len(status.ProgressMessages) > 0 {
+				b.WriteString("Progress Messages:\n")
+				for _, msg := range status.ProgressMessages {
+					fmt.Fprintf(&b, "  • %s\n", msg)
+				}
 			}
 
 			return nil, order.Status, fmt.Errorf(b.String())
