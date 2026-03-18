@@ -286,7 +286,7 @@ func resourceBPInstanceCreate(ctx context.Context, d *schema.ResourceData, m int
 	var resourceId string
 	var servers []string = make([]string, 0)
 	for _, j := range order.Links.Jobs {
-		job, joberr := apiClient.GetJob(j.Href)
+		job, joberr := apiClient.GetJob(j.Href, false)
 		if joberr != nil {
 			return diag.FromErr(joberr)
 		}
@@ -952,12 +952,16 @@ func OrderStateRefreshFunc(apiClient *cbclient.CloudBoltClient, orderId string) 
 
 func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		job, err := apiClient.GetJob(jobPath)
+		job, err := apiClient.GetJob(jobPath, false)
 		if err != nil {
 			return nil, "", err
 		}
 
 		if job.Status == "FAILURE" || job.Status == "WARNING" || job.Status == "CANCELED" {
+			job, err := apiClient.GetJob(jobPath, true)
+			if err != nil {
+				return nil, "", err
+			}
 			var b strings.Builder
 
 			fmt.Fprintf(&b, "Job %s failed to reach target state.\n\n", job.ID)
@@ -974,6 +978,14 @@ func JobStateRefreshFunc(apiClient *cbclient.CloudBoltClient, jobPath string) re
 				b.WriteString("Outputs:\n")
 				for _, line := range strings.Split(strings.TrimRight(job.Output, "\n"), "\n") {
 					fmt.Fprintf(&b, "  • %s\n", line)
+				}
+				b.WriteString("\n")
+			}
+
+			if len(job.ProgressMessages) > 0 {
+				b.WriteString("Progress Messages:\n")
+				for _, msg := range job.ProgressMessages {
+					fmt.Fprintf(&b, "  • %s\n", msg)
 				}
 			}
 
